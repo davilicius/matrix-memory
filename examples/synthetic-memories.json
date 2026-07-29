@@ -1,0 +1,50 @@
+[
+  {
+    "event_key": "atlas:project:initial-design",
+    "memory_type": "project",
+    "title": "Diseño inicial de Atlas",
+    "content": "Atlas es un proyecto ficticio para estudiar recuperación semántica.",
+    "importance": 80,
+    "confidence": 100,
+    "truth_status": "verified",
+    "source": {
+      "type": "document",
+      "title": "Documento ficticio de arquitectura"
+    },
+    "entities": [
+      {
+        "kind": "project",
+        "name": "Atlas",
+        "role": "subject",
+        "weight": 1.0
+      },
+      {
+        "kind": "technology",
+        "name": "PostgreSQL",
+        "role": "technology",
+        "weight": 0.9
+      }
+    ]
+  },
+  {
+    "event_key": "atlas:decision:use-hybrid-retrieval",
+    "memory_type": "decision",
+    "title": "Usar recuperación híbrida",
+    "content": "Atlas combinará texto completo y similitud vectorial.",
+    "importance": 75,
+    "confidence": 95,
+    "truth_status": "verified",
+    "source": {
+      "type": "conversation",
+      "title": "Reunión ficticia de diseño"
+    },
+    "relations": [
+      {
+        "target_event_key": "atlas:project:initial-design",
+        "type": "part_of",
+        "weight": 1.0,
+        "confidence": 100
+      }
+    ]
+  }
+]
