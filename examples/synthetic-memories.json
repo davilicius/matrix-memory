@@ -1,20 +1,21 @@
 [
   {
-    "event_key": "atlas:project:initial-design",
+    "event_key": "orion:project:initial-design",
     "memory_type": "project",
-    "title": "Diseño inicial de Atlas",
-    "content": "Atlas es un proyecto ficticio para estudiar recuperación semántica.",
+    "title": "Diseño inicial de Orion",
+    "content": "Orion es un invernadero escolar ficticio que registra temperatura y humedad.",
+    "summary": "Proyecto educativo de monitoreo ambiental.",
     "importance": 80,
     "confidence": 100,
     "truth_status": "verified",
     "source": {
       "type": "document",
-      "title": "Documento ficticio de arquitectura"
+      "title": "Arquitectura ficticia de Orion"
     },
     "entities": [
       {
         "kind": "project",
-        "name": "Atlas",
+        "name": "Orion",
         "role": "subject",
         "weight": 1.0
       },
@@ -27,23 +28,44 @@
     ]
   },
   {
-    "event_key": "atlas:decision:use-hybrid-retrieval",
+    "event_key": "orion:decision:automatic-irrigation",
     "memory_type": "decision",
-    "title": "Usar recuperación híbrida",
-    "content": "Atlas combinará texto completo y similitud vectorial.",
+    "title": "Automatizar el riego",
+    "content": "Orion activará el riego cuando la humedad permanezca por debajo del umbral configurado.",
     "importance": 75,
     "confidence": 95,
     "truth_status": "verified",
     "source": {
       "type": "conversation",
-      "title": "Reunión ficticia de diseño"
+      "title": "Reunión ficticia del equipo Orion"
     },
     "relations": [
       {
-        "target_event_key": "atlas:project:initial-design",
+        "target_event_key": "orion:project:initial-design",
         "type": "part_of",
         "weight": 1.0,
         "confidence": 100
+      }
+    ]
+  },
+  {
+    "event_key": "orion:hypothesis:sensor-drift",
+    "memory_type": "hypothesis",
+    "title": "Posible desviación del sensor",
+    "content": "Las lecturas anómalas podrían deberse a una desviación gradual del sensor de humedad.",
+    "importance": 60,
+    "confidence": 45,
+    "truth_status": "inferred",
+    "source": {
+      "type": "sensor",
+      "title": "Serie sintética de humedad"
+    },
+    "relations": [
+      {
+        "target_event_key": "orion:project:initial-design",
+        "type": "related_to",
+        "weight": 0.7,
+        "confidence": 70
       }
     ]
   }

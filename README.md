@@ -1,110 +1,114 @@
-# Matrix Memory
+# Matrix Memory 1.2
 
-Modelo educativo de memoria semántica de largo plazo para agentes de IA, construido sobre PostgreSQL y Supabase.
+Modelo educativo de memoria semántica de largo plazo para agentes de inteligencia artificial, construido con PostgreSQL, Supabase y `pgvector`.
 
-Matrix representa los recuerdos como nodos atómicos conectados con entidades, fuentes y relaciones tipadas. Combina búsqueda de texto completo, vectores, importancia, confianza y contexto asociativo.
+Matrix no guarda una conversación completa como un bloque. Convierte la información en recuerdos atómicos con procedencia, tiempo, entidades, relaciones y un estado epistémico explícito. Después combina búsqueda de texto, similitud vectorial y contexto asociativo para recuperar lo relevante.
 
-> Este repositorio contiene solamente arquitectura, migraciones y datos sintéticos. No incluye recuerdos personales, identificadores reales ni credenciales.
+> Este repositorio contiene exclusivamente arquitectura, migraciones, funciones y datos sintéticos. No incluye recuerdos personales, identificadores reales, URLs de proyectos, claves ni credenciales.
 
-## Capacidades
+## Pregunta de estudio
 
-- Memorias atómicas con procedencia y contexto temporal.
-- Clave idempotente `event_key` para evitar duplicados.
-- Historial de versiones al modificar una memoria.
-- Entidades reutilizables: personas, organizaciones, proyectos y conceptos.
-- Grafo de relaciones causales, temporales, semánticas y evidenciales.
-- Búsqueda híbrida: texto completo en español + `pgvector`.
-- Recuperación asociativa de hasta dos saltos.
-- Row Level Security (RLS) por propietario.
-- RPC única de escritura: `matrix_remember(jsonb)`.
+Si un agente puede conservar experiencias, decisiones, fuentes y relaciones a lo largo del tiempo, ¿estamos construyendo una base de conocimiento o una representación parcial de la identidad de una persona?
 
-## Arquitectura
+## Qué se aprende
+
+- Modelar recuerdos como datos verificables y no como texto sin estructura.
+- Diferenciar hechos, reportes, inferencias, decisiones e hipótesis.
+- Evitar duplicados mediante una clave idempotente `event_key`.
+- Preservar la procedencia de cada recuerdo.
+- Proteger los datos de cada usuario con Row Level Security (RLS).
+- Generar embeddings de forma asíncrona con colas y Edge Functions.
+- Combinar texto completo y vectores en una recuperación híbrida.
+- Expandir recuerdos relacionados mediante un grafo limitado.
+- Registrar qué recuerdos fueron recuperados y cuántas veces.
+
+## Arquitectura general
 
 ```mermaid
 flowchart TD
-    A["Agente o aplicación"] --> W["matrix_remember(jsonb)"]
-    W --> N["memory_nodes"]
-    W --> S["sources"]
-    W --> E["entities"]
-    W --> G["memory_edges"]
-    N --> R["recall_memories"]
-    G --> C["memory_context"]
+    A["Agente o aplicación"] --> W["matrix_remember"]
+    W --> M["Memorias y procedencia"]
+    M --> Q["Cola de embeddings"]
+    Q --> E["Edge Function gte-small"]
+    E --> M
+    A --> S["matrix_semantic_recall"]
+    S --> R["Recuperación híbrida"]
     R --> A
-    C --> A
 ```
 
-## Instalación
+## Contrato 1.2
 
-1. Crea un proyecto de Supabase.
-2. Ejecuta `supabase/migrations/0001_matrix_core.sql`.
-3. Crea un usuario mediante Supabase Auth.
-4. Ejecuta `supabase/seed.sql` sustituyendo el UUID sintético por el usuario de prueba.
-5. Usa las RPC como usuario autenticado para que las políticas RLS apliquen.
+| Operación | RPC | Propósito |
+| --- | --- | --- |
+| Escribir | `matrix_remember(jsonb)` | Guardar una memoria con procedencia e idempotencia |
+| Recuperar sin embedding automático | `matrix_recall(jsonb)` | Combinar texto, vector opcional y asociaciones |
+| Recuperar semánticamente | `matrix_semantic_recall(jsonb)` | Encolar o reutilizar el embedding de una consulta |
+| Consultar el contrato | `matrix_schema_info()` | Descubrir versión, tipos y funciones disponibles |
 
-## Escritura
+Los embeddings usan `Supabase/gte-small` con 384 dimensiones. La escritura y recuperación ordinarias respetan la identidad autenticada y las políticas RLS.
 
-```sql
-select public.matrix_remember(
-  jsonb_build_object(
-    'event_key', 'study:decision:use-semantic-memory',
-    'memory_type', 'decision',
-    'title', 'Adoptar memoria semántica',
-    'content', 'El proyecto de ejemplo utilizará PostgreSQL y pgvector.',
-    'truth_status', 'verified',
-    'source', jsonb_build_object(
-      'type', 'conversation',
-      'title', 'Sesión de diseño ficticia'
-    ),
-    'entities', jsonb_build_array(
-      jsonb_build_object(
-        'kind', 'project',
-        'name', 'Proyecto Atlas',
-        'role', 'subject',
-        'weight', 1.0
-      )
-    )
-  )
-);
+## Ruta rápida de estudio
+
+1. Lee [Guía de estudio](docs/study-guide.md).
+2. Revisa [Modelo de memoria](docs/memory-model.md).
+3. Recorre la [Arquitectura](docs/architecture.md).
+4. Instala la migración base `0001` y después la actualización `0002`.
+5. Carga el `seed.sql` con un usuario de prueba.
+6. Ejecuta [Laboratorio SQL](examples/learning-lab.sql).
+7. Revisa [Despliegue de embeddings](docs/deployment.md) si quieres activar la parte semántica.
+
+## Instalación resumida
+
+Requisitos:
+
+- Un proyecto de Supabase destinado a pruebas.
+- Supabase CLI actualizado.
+- Un usuario de prueba creado mediante Supabase Auth.
+
+```bash
+supabase link --project-ref TU_PROJECT_REF
+supabase db push
+supabase functions deploy memory-write
+supabase functions deploy memory-recall
+supabase functions deploy matrix-embedding-worker
+supabase functions deploy matrix-query-embedding-worker
 ```
 
-En llamadas de servidor con un rol privilegiado debe agregarse `owner_id`. En llamadas autenticadas, la función usa `auth.uid()` e impide escribir para otra persona.
+Antes de activar los workers, configura los secretos y el cron siguiendo [deployment.md](docs/deployment.md). Nunca uses un proyecto con datos reales para los ejercicios.
 
-## Recuperación
+## Estructura
 
-```sql
-select *
-from public.recall_memories(
-  p_query_text := 'memoria semántica',
-  p_query_embedding := null,
-  p_match_count := 12
-);
-```
-
-Después de encontrar memorias semilla:
-
-```sql
-select *
-from public.memory_context(
-  array['00000000-0000-0000-0000-000000000001'::uuid],
-  1
-);
+```text
+docs/                         teoría, arquitectura y despliegue
+examples/                     recuerdos y ejercicios sintéticos
+skill/matrix-memory.example/  ejemplo de integración con un agente
+supabase/functions/           API y workers de embeddings
+supabase/migrations/          esquema 1.1 y actualización 1.2
+supabase/snippets/            activación manual y consciente
+tests/                        contrato y controles básicos
 ```
 
 ## Seguridad
 
-- Nunca incluyas `service_role`, secretos, tokens ni contraseñas en Git.
-- RLS está habilitado en todas las tablas expuestas.
-- Las funciones de recuperación son `security invoker`.
-- Las funciones auxiliares no son ejecutables por `anon` ni `authenticated`.
-- El ejemplo `.env.example` contiene solamente nombres de variables.
+- Todas las tablas expuestas tienen RLS.
+- Los RPC públicos operan como `security invoker`.
+- Las funciones privilegiadas viven en el esquema `private` y no son ejecutables por usuarios normales.
+- Los workers sin verificación JWT exigen un secreto específico en `x-matrix-worker-secret`.
+- Ninguna clave `service_role`, conexión de base de datos o secreto de Vault debe entrar en Git.
 
-## Documentación
-
-- [Arquitectura](docs/architecture.md)
-- [Modelo de memoria](docs/memory-model.md)
-- [Flujo de recuperación](docs/retrieval-flow.md)
-- [Skill de ejemplo](skill/matrix-memory.example/SKILL.md)
+Consulta [security.md](docs/security.md) antes de adaptar el proyecto a información real.
 
 ## Estado
 
-Versión educativa del contrato Matrix `1.1`.
+Versión educativa del contrato **Matrix 1.2**, actualizada a partir de una implementación funcional y sanitizada para fines de aprendizaje.
+
+## Referencias
+
+- [Supabase AI & Vectors](https://supabase.com/docs/guides/ai)
+- [Automatic embeddings](https://supabase.com/docs/guides/ai/automatic-embeddings)
+- [Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Edge Function configuration](https://supabase.com/docs/guides/functions/function-configuration)
+
+## Licencia
+
+MIT. Puedes estudiar, modificar y reutilizar el modelo citando el repositorio.
