@@ -98,9 +98,15 @@ tests/                        contrato y controles básicos
 
 Consulta [security.md](docs/security.md) antes de adaptar el proyecto a información real.
 
+## Roadmap de mejoras
+
+Una auditoría del contrato 1.2 confirmó la atomicidad, la idempotencia, el aislamiento RLS, la cola asíncrona, la caché y la trazabilidad de las recuperaciones. También detectó una limitación: las exclusiones expresadas solamente en lenguaje natural pueden convertirse en términos positivos para la búsqueda de texto completo.
+
+El [roadmap de recuperación semántica](ROADMAP.md) propone filtros estructurados de dominio y exclusión, ranking consciente del alcance, mejores señales de título, atomicidad del contenido personal y una batería de regresión para conservar las garantías actuales.
+
 ## Estado
 
-Versión educativa del contrato **Matrix 1.2**, actualizada a partir de una implementación funcional y sanitizada para fines de aprendizaje.
+Versión educativa del contrato **Matrix 1.2**, actualizada a partir de una implementación funcional y sanitizada para fines de aprendizaje. El trabajo posterior a la auditoría está documentado en [ROADMAP.md](ROADMAP.md).
 
 ## Referencias
 
