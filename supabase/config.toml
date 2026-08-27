@@ -1,0 +1,15 @@
+project_id = "matrix-memory-study"
+
+[functions.memory-write]
+verify_jwt = true
+
+[functions.memory-recall]
+verify_jwt = true
+
+# Llamadas internas desde pg_net. Ambos workers validan además
+# x-matrix-worker-secret contra el secreto almacenado en Vault.
+[functions.matrix-embedding-worker]
+verify_jwt = false
+
+[functions.matrix-query-embedding-worker]
+verify_jwt = false
