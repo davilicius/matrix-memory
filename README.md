@@ -52,7 +52,7 @@ Los embeddings usan `Supabase/gte-small` con 384 dimensiones. La escritura y rec
 1. Lee [Guía de estudio](docs/study-guide.md).
 2. Revisa [Modelo de memoria](docs/memory-model.md).
 3. Recorre la [Arquitectura](docs/architecture.md).
-4. Instala la migración base `0001` y después la actualización `0002`.
+4. Aplica todas las migraciones en orden: base `0001`, contrato `0002` y correcciones posteriores de permisos y recuperación de servidor.
 5. Carga el `seed.sql` con un usuario de prueba.
 6. Ejecuta [Laboratorio SQL](examples/learning-lab.sql).
 7. Revisa [Despliegue de embeddings](docs/deployment.md) si quieres activar la parte semántica.

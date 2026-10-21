@@ -21,11 +21,10 @@ Vault, colas o permisos sobre todo un esquema.
 La instalación limpia reveló otro fallo previo: `recall_memories` usa `<=>`
 con `search_path = ''`. Se corrigen las dos definiciones históricas con
 `operator(extensions.<=>)`, conservando el search_path vacío y el algoritmo.
-Estas correcciones permiten reproducir las migraciones desde cero; **no se
-reaplican automáticamente donde ya se registraron 0001/0002**. Antes de
-actualizar una instalación existente, inspeccionar `pg_get_functiondef` y
-probar recall. Si conserva el operador sin calificar, preparar una migración
-adicional de la función para revisión.
+Las correcciones históricas permiten reproducir una instalación desde cero.
+La migración adicional `20261021212808_server_recall_owner_scope.sql`
+reemplaza también la definición efectiva de `recall_memories`, por lo que
+la corrección del operador alcanza instalaciones que ya aplicaron 0001/0002.
 
 ## Consumidores y roles comprobados en código
 
@@ -88,13 +87,21 @@ primero los consumidores externos.
 `authenticated` sí tiene USAGE y EXECUTE en el helper de encolado: permite
 la llamada interna, no una API pública del esquema.
 
-Limitación funcional previa: `matrix_recall` acepta owner_id de servidor,
-pero `recall_memories` filtra por auth.uid(). Con service_role sin identidad
-se inserta historial y se devuelven cero hits. El parche elimina el error
-de permisos, **no modifica esa semántica**. Las pruebas cubren ese caso y
-una sesión de servidor con contexto de usuario para ejercitar resultados,
-contadores y asociaciones. La aplicación debe preferir el JWT real del
-usuario, como las Edge Functions; nunca exponer la clave service-role.
+La segunda migración corrige además los cero resultados de `matrix_recall`
+con service_role sin JWT de usuario. Conserva la validación inicial: el
+usuario autenticado sólo puede pedir su propietario; un rol de servidor
+admitido debe indicar owner_id. Búsqueda textual/vectorial, grafo, contadores
+e historial usan ese mismo propietario validado.
+
+La consulta se ejecuta dentro de la RPC para conservar las firmas públicas
+y no ampliar permisos del esquema private. No se fabrican JWT ni se cambia
+el estado de sesión. El algoritmo de ranking conserva sus pesos y filtros;
+los helpers públicos antiguos continúan restringidos a auth.uid(). Los
+clientes deben usar el JWT del usuario; service_role queda sólo en servidores.
+
+Para futuras funciones privadas se requieren REVOKE explícitos: el REVOKE
+de defaults limitado a private no elimina el EXECUTE global de PUBLIC.
+Las funciones actuales están protegidas por los REVOKE explícitos de 0002.
 
 ## Pruebas
 
@@ -108,10 +115,12 @@ bash tests/run-permissions.sh legacy
 El workflow `Matrix SQL permissions` usa contenedores desechables, sin
 credenciales de Supabase. Strict revoca defaults antes de crear tablas
 (incluso más restrictivo que el anuncio); legacy reproduce los anteriores.
-Comprueba error previo, actualización, instalación/reset, reaplicación,
+Comprueba ambos errores previos, actualización, instalación/reset, reaplicación,
 ACL, RLS en diez tablas, aislamiento de dos usuarios, rechazo de cambio de
 propietario, escritura/recuperación, caché semántica, triggers, colas y SQL
-de workers. Incluye el contrato pgTAP y Security Advisor local.
+de workers. Incluye recuperación de servidor sin JWT, propietarios alternados,
+rechazo de propietario ausente o suplantado, búsqueda vectorial con embeddings
+idénticos de varios usuarios, el contrato pgTAP y Security Advisor local.
 
 No valida HTTP PostgREST/Edge, gte-small ni secretos/conexiones reales.
 El despliegue y la comprobación del login de workers requieren autorización

@@ -46,6 +46,9 @@ supabase --workdir "$test_root" migration up --local
 if [[ "$mode" == strict ]]; then sql < tests/before-grants.sql; fi
 cp supabase/migrations/20261021211445_explicit_server_rpc_grants.sql "$test_root/supabase/migrations/"
 supabase --workdir "$test_root" migration up --local
+sql < tests/before-server-recall.sql
+cp supabase/migrations/20261021212808_server_recall_owner_scope.sql "$test_root/supabase/migrations/"
+supabase --workdir "$test_root" migration up --local
 suite
 
 # Fresh install/reset with strict defaults recreated BEFORE any Matrix table.
@@ -54,5 +57,6 @@ suite
 
 # Reapplication must not broaden ACLs or change behavior.
 sql < supabase/migrations/20261021211445_explicit_server_rpc_grants.sql
+sql < supabase/migrations/20261021212808_server_recall_owner_scope.sql
 suite
 supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error

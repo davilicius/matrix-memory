@@ -74,6 +74,10 @@ begin
   result := public.matrix_recall('{"query":"permisos","hops":1}');
   assert jsonb_array_length(result->'hits') = 2, 'Authenticated recall failed';
   assert jsonb_array_length(result->'associations') = 2, 'Graph context failed';
+  assert not exists (select 1 from jsonb_array_elements(result->'associations') item
+    where item->>'node_id' is null), 'Graph response lost node_id';
+  assert (select count(*) from public.recall_memories('permisos', null, 12, null, null, null)) = 2,
+    'Legacy recall helper changed';
   assert (select count(*) from public.retrieval_history) = 1;
   assert (select min(recall_count) from public.memory_nodes) = 1;
   insert into public.matrix_recall_requests(owner_id, query_text, query_hash, status, embedding)
@@ -81,6 +85,12 @@ begin
       ('[1,' || repeat('0,',382) || '0]')::extensions.vector);
   result := public.matrix_semantic_recall('{"query":"permisos"}');
   assert result->>'status' = 'ready', 'Cached semantic RPC failed';
+  begin
+    perform public.matrix_recall('{"owner_id":"22222222-2222-4222-8222-222222222222","query":"permisos"}');
+    raise exception 'Recall owner spoof accepted';
+  exception when raise_exception then
+    if sqlerrm <> 'owner_id does not match the authenticated user' then raise; end if;
+  end;
   begin
     perform public.matrix_remember(payload || '{"owner_id":"22222222-2222-4222-8222-222222222222"}');
     raise exception 'Owner spoof accepted';
@@ -138,16 +148,79 @@ begin
   assert jsonb_array_length(b->'relation_ids') = 1, 'Server relation insert failed';
   result := public.matrix_recall('{"owner_id":"22222222-2222-4222-8222-222222222222","query":"servidor"}');
   assert result->>'history_id' is not null, 'Server history insert failed';
-  -- Existing 1.2 behavior: recall_memories filters by auth.uid(), not payload owner.
-  assert jsonb_array_length(result->'hits') = 0, 'Unexpected identity-free recall behavior';
+  assert jsonb_array_length(result->'hits') = 2, 'Server recall without user JWT failed';
+  assert jsonb_array_length(result->'associations') = 2, 'Server graph without user JWT failed';
+  assert auth.uid() is null, 'Server recall changed JWT identity';
+  assert (select min(recall_count) from public.memory_nodes
+    where owner_id = '22222222-2222-4222-8222-222222222222') = 1;
+  begin
+    perform public.matrix_recall('{"query":"servidor"}');
+    raise exception 'Server recall accepted missing owner';
+  exception when raise_exception then
+    if sqlerrm <> 'owner_id is required for server-side calls' then raise; end if;
+  end;
+  -- Interleaved owners on the same server connection must not retain context.
+  result := public.matrix_recall('{"owner_id":"11111111-1111-4111-8111-111111111111","query":"permisos","hops":2}');
+  assert jsonb_array_length(result->'hits') = 2, 'Server cannot select owner A';
+  assert not exists (select 1 from jsonb_array_elements(result->'hits') hit
+    join public.memory_nodes n on n.id = (hit->>'id')::uuid
+    where n.owner_id <> '11111111-1111-4111-8111-111111111111'), 'Cross-owner hit';
+  assert not exists (select 1 from jsonb_array_elements(result->'associations') hit
+    join public.memory_nodes n on n.id = (hit->>'node_id')::uuid
+    where n.owner_id <> '11111111-1111-4111-8111-111111111111'), 'Cross-owner association';
+  assert (select owner_id from public.retrieval_history where id = (result->>'history_id')::uuid)
+    = '11111111-1111-4111-8111-111111111111'::uuid, 'Wrong history owner';
+  result := public.matrix_recall('{"owner_id":"22222222-2222-4222-8222-222222222222","query":"permisos"}');
+  assert jsonb_array_length(result->'hits') = 0, 'Server leaked owner A text results';
+  assert auth.uid() is null, 'Server recall retained another owner identity';
   -- Exercise recall's UPDATE privilege when a trusted server supplies a user context.
   perform set_config('request.jwt.claim.sub', '22222222-2222-4222-8222-222222222222', true);
   result := public.matrix_recall('{"query":"servidor","hops":1}');
   assert jsonb_array_length(result->'hits') = 2, 'Server recall with user context failed';
   assert jsonb_array_length(result->'associations') = 2, 'Server graph context failed';
-  assert (select min(recall_count) from public.memory_nodes where owner_id = auth.uid()) = 1;
+  assert (select min(recall_count) from public.memory_nodes where owner_id = auth.uid()) = 2;
 end $$;
 
+reset role;
+-- Vector search must use the explicit server owner too, even when every user
+-- has the same synthetic embedding and every row would be a candidate.
+update public.memory_nodes set embedding = ('[1,' || repeat('0,',382) || '0]')::extensions.vector;
+select set_config('request.jwt.claim.sub', '', true);
+select set_config('request.jwt.claims', '{"role":"service_role"}', true);
+set local role service_role;
+do $$
+declare result jsonb; embedding jsonb;
+begin
+  embedding := ('[1,' || repeat('0,',382) || '0]')::jsonb;
+  result := public.matrix_recall(jsonb_build_object(
+    'owner_id','22222222-2222-4222-8222-222222222222',
+    'query','nomatchword', 'query_embedding',embedding, 'hops',2));
+  assert jsonb_array_length(result->'hits') = 2, 'Server vector recall failed';
+  assert not exists (select 1 from jsonb_array_elements(result->'hits') hit
+    join public.memory_nodes n on n.id = (hit->>'id')::uuid
+    where n.owner_id <> '22222222-2222-4222-8222-222222222222'), 'Cross-owner vector hit';
+  assert not exists (select 1 from jsonb_array_elements(result->'associations') hit
+    join public.memory_nodes n on n.id = (hit->>'node_id')::uuid
+    where n.owner_id <> '22222222-2222-4222-8222-222222222222'), 'Cross-owner vector graph';
+  begin
+    result := public.matrix_recall(jsonb_build_object(
+      'owner_id','33333333-3333-4333-8333-333333333333', 'query','nomatchword',
+      'query_embedding',embedding));
+    raise exception 'Unknown auth user unexpectedly accepted history write';
+  exception when foreign_key_violation then null;
+  end;
+end $$;
+reset role;
+set local role authenticated;
+do $$
+begin
+  begin
+    perform public.matrix_recall('{"owner_id":"11111111-1111-4111-8111-111111111111","query":"permisos"}');
+    raise exception 'Authenticated role without uid selected an owner';
+  exception when raise_exception then
+    if sqlerrm <> 'an authenticated user or privileged server role is required' then raise; end if;
+  end;
+end $$;
 reset role;
 -- Worker SQL paths use the direct database login (postgres in this harness).
 -- No Edge HTTP invocation, model download, cron activation or real secrets.
