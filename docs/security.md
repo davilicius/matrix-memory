@@ -9,9 +9,12 @@ Matrix puede almacenar información sensible. Este repositorio es educativo y de
 | Cliente | JWT de un usuario autenticado |
 | Tablas públicas | RLS por `owner_id = auth.uid()` |
 | RPC de usuario | `security invoker` y validación del propietario |
-| Esquema `private` | Sin acceso directo para `anon` o `authenticated` |
+| Esquema `private` | Sin acceso para `anon`; `authenticated` sólo tiene USAGE y EXECUTE en el helper de encolado que valida propietario; no exponer por Data API |
 | Workers | Secreto dedicado y comparación constante |
 | Git | Sólo configuración de ejemplo y datos sintéticos |
+
+La [auditoría de permisos de octubre de 2026](permissions-audit-2026-10.md)
+detalla los roles, GRANT explícitos y pruebas de instalación sin defaults.
 
 ## Reglas obligatorias
 
