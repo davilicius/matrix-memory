@@ -1,0 +1,24 @@
+name: Matrix SQL permissions
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        defaults: [strict, legacy]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3
+        with:
+          version: 2.121.0
+      - name: Fresh install, RLS, server RPCs and reset
+        run: bash tests/run-permissions.sh '${{ matrix.defaults }}'

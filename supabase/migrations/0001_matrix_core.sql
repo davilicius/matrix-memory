@@ -332,7 +332,7 @@ full_text as (
   limit least(greatest(p_match_count, 1), 30) * 3
 ),
 semantic as (
-  select n.id, row_number() over (order by n.embedding <=> p_query_embedding) as rank_ix
+  select n.id, row_number() over (order by n.embedding operator(extensions.<=>) p_query_embedding) as rank_ix
   from filtered n
   where p_query_embedding is not null and n.embedding is not null
   limit least(greatest(p_match_count, 1), 30) * 3

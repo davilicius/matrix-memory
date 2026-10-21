@@ -1,5 +1,13 @@
 # Cambios
 
+## Correcciones de compatibilidad - 2026-10-21
+
+- GRANT explícitos mínimos para las RPC de servidor sin depender de defaults de Supabase.
+- `matrix_recall` recupera resultados y asociaciones para el owner_id validado también sin JWT de usuario en llamadas de servidor.
+- Operador de pgvector calificado para instalaciones nuevas y actualización de funciones existentes.
+- RLS, firmas públicas, SECURITY INVOKER y restricciones de anon conservados.
+- Regresión de permisos, aislamiento, recuperación textual/vectorial, actualización y reset en GitHub Actions.
+
 ## 1.2.0 - 2026-08-27
 
 - Se documentó el contrato canónico `matrix_remember(jsonb)` y `matrix_recall(jsonb)`.
