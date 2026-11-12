@@ -82,9 +82,47 @@ Deno.test('HTTP boundary rejects unauthorized requests and routes authenticated 
   const list = await handler(request({ jsonrpc: '2.0', id: 1, method: 'tools/list' }));
   assert.equal(list.status, 200);
   const listed = await list.json();
-  assert.equal(listed.result.tools.length, 7);
+  assert.equal(listed.result.tools.length, 8);
   const response = await handler(request({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'search', arguments: { query: 'synthetic' } } }));
   assert.equal(response.status, 200);
   assert.equal((await response.json()).result.structuredContent.ok, true);
   assert.equal(searches, 1);
+});
+
+Deno.test('supersede validates scope, exact target timestamp and forbids nested identity or extra replacements', () => {
+  const request={target_id:owner,expected_updated_at:'2026-11-12T18:00:00.123456Z',scope:'partial',reason:'Only the deadline changed',
+    replacement:{event_key:'test:decision:replacement',memory_type:'decision',title:'Updated',content:'New deadline',source:{type:'note'}}};
+  assert.equal(schemas.supersede.parse(request).expected_updated_at,request.expected_updated_at);
+  for(const invalid of [{scope:'unknown'},{reason:''},{expected_updated_at:undefined},{owner_id:other},
+    {replacement:{...request.replacement,owner_id:other}},
+    {replacement:{...request.replacement,relations:[{type:'supersedes',target_node_id:other}]}},
+    {replacement:{...request.replacement,metadata:{_matrix_supersession:{request_hash:'fake'}}}}]) {
+    assert.throws(()=>schemas.supersede.parse({...request,...invalid}));
+  }
+});
+
+Deno.test('supersede routes once, protects secrets and returns actionable conflict errors without data leaks',async()=>{
+  let calls=0; let code='';
+  const db=Object.fromEntries(Object.keys(schemas).map(k=>[k,async(_args:unknown)=>{
+    if(k==='supersede')calls++;
+    if(code)throw Object.assign(new Error('private database details'),{code});
+    return {status:'created',memory_id:other};
+  }])) as Backend;
+  const resource=url+'/functions/v1/matrix-mcp';
+  const handler=makeHandler(db,async t=>t==='valid',resource);
+  const invoke=async(args:unknown)=>{
+    const response=await handler(new Request(resource,{method:'POST',headers:{Authorization:'Bearer valid','Content-Type':'application/json',Accept:'application/json, text/event-stream'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'supersede',arguments:args}})}));
+    return (await response.json()).result;
+  };
+  const args={target_id:owner,expected_updated_at:'2026-11-12T18:00:00.123456Z',scope:'full',reason:'Changed',replacement:{event_key:'test:decision:replacement',memory_type:'decision',title:'Updated',content:'New decision',source:{type:'note'}}};
+  assert.equal((await invoke(args)).structuredContent.status,'created');
+  assert.equal(calls,1);
+  assert.equal((await invoke({...args,replacement:{...args.replacement,content:'-----BEGIN PRIVATE KEY-----'}})).isError,true);
+  assert.equal(calls,1);
+  for(code of ['P4090','P4091','P4040','22023']){
+    const result=await invoke(args);
+    assert.equal(result.isError,true);
+    assert.ok(!JSON.stringify(result).includes('private database details'));
+    assert.ok(!JSON.stringify(result).includes('reintentar el guardado'));
+  }
 });

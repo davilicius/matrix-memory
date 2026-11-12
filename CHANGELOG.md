@@ -1,5 +1,12 @@
 # Cambios
 
+## MCP 1.3.0 - 2026-11-12
+
+- Añade `supersede` y la RPC `matrix_supersede(jsonb)` para sustituciones completas o parciales en una transacción.
+- Conserva contenidos históricos; incluye reintentos exactos, conflictos concurrentes, RLS y pruebas de reversión ante fallos.
+- Mantiene los contratos anteriores y el despliegue manual.
+
+
 ## Sincronización de producción y MCP 1.1.1 — 2026-11-12
 
 - Incorporado el MCP OAuth desplegado (base 1.1.0), con propietario y conexiones configurables en lugar de identificadores personales.

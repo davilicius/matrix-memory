@@ -4,12 +4,25 @@ cd "$(dirname "$0")/.."
 mode="${1:-strict}"
 case "$mode" in strict|legacy) ;; *) echo 'Use strict or legacy' >&2; exit 2 ;; esac
 test_root="$(mktemp -d)"
-project="matrix-acl-test-$$"
+project="matrix-acl-test-$mode-${test_root##*.}"
+# Isolate parallel CI jobs sharing a Docker host. A fixed 55432 port can
+# collide before any SQL test starts, even when project names are distinct.
+read -r db_port shadow_port < <(python3 - <<'PY'
+import socket
+sockets = [socket.socket(), socket.socket()]
+for sock in sockets:
+    sock.bind(('0.0.0.0', 0))
+print(*(sock.getsockname()[1] for sock in sockets))
+for sock in sockets:
+    sock.close()
+PY
+)
 mkdir -p "$test_root/supabase/migrations"
 cat > "$test_root/supabase/config.toml" <<EOF
 project_id = "$project"
 [db]
-port = 55432
+port = $db_port
+shadow_port = $shadow_port
 major_version = 17
 [db.seed]
 enabled = false
@@ -59,4 +72,11 @@ suite
 sql < profiles/study/supabase/migrations/20261021211445_explicit_server_rpc_grants.sql
 sql < profiles/study/supabase/migrations/20261021212808_server_recall_owner_scope.sql
 suite
+supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error
+
+# Additive replacement API after the legacy ACL regressions. Exercise both
+# default-grant modes against the real disposable Postgres/Supabase database.
+for migration in supabase/migrations/*_atomic_memory_supersession.sql; do sql < "$migration"; done
+sql < tests/supersession.sql
+bash tests/supersession-concurrency.sh "supabase_db_$project"
 supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error
