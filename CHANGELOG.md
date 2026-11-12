@@ -1,5 +1,14 @@
 # Cambios
 
+## Sincronización de producción y MCP 1.1.1 — 2026-11-12
+
+- Incorporado el MCP OAuth desplegado (base 1.1.0), con propietario y conexiones configurables en lugar de identificadores personales.
+- Se conserva la identidad única validada por Auth, RLS, seis herramientas y rechazos de sesiones sin OAuth.
+- Historial raíz alineado con las 16 versiones de producción; el historial educativo anterior se conserva íntegro en `profiles/study/`.
+- Seed automático desactivado y requisitos previos al despliegue documentados.
+- Pruebas de autenticación, contrato MCP y correspondencia del historial; la regresión SQL educativa conserva su alcance.
+- Sin despliegue ni cambios al historial, secretos o configuración del proyecto alojado.
+
 ## Correcciones de compatibilidad - 2026-10-21
 
 - GRANT explícitos mínimos para las RPC de servidor sin depender de defaults de Supabase.

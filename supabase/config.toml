@@ -1,4 +1,4 @@
-project_id = "matrix-memory-study"
+project_id = "matrix-memory"
 
 [functions.memory-write]
 verify_jwt = true
@@ -13,3 +13,13 @@ verify_jwt = false
 
 [functions.matrix-query-embedding-worker]
 verify_jwt = false
+
+# OAuth signature/session/owner validation is implemented inside matrix-mcp.
+[functions.matrix-mcp]
+verify_jwt = false
+entrypoint = "./functions/matrix-mcp/index.ts"
+import_map = "./functions/matrix-mcp/deno.json"
+
+# Synthetic data is opt-in in the study profile, never seeded in production.
+[db.seed]
+enabled = false

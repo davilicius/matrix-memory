@@ -1,22 +1,22 @@
 # Despliegue educativo
 
-Usa un proyecto de Supabase destinado exclusivamente al laboratorio. La instalación tiene dos niveles: contrato de datos y embeddings automáticos.
+Usa un proyecto de Supabase destinado exclusivamente al laboratorio. Las migraciones educativas viven en `profiles/study/`; no uses las de la raíz para un laboratorio nuevo. Para la instalación existente y el MCP consulta [production-sync-2026-11.md](production-sync-2026-11.md).
 
 ## 1. Preparar el proyecto
 
 ```bash
 supabase login
-supabase link --project-ref TU_PROJECT_REF
-supabase db push
+supabase --workdir profiles/study link --project-ref TU_PROJECT_REF
+supabase --workdir profiles/study db push
 ```
 
-Crea un usuario de prueba mediante Supabase Auth. Sustituye el UUID de `supabase/seed.sql` únicamente por el UUID de ese usuario ficticio y ejecuta el seed.
+Crea un usuario de prueba mediante Supabase Auth. Sustituye el UUID de `supabase/seed.sql` únicamente por el UUID de ese usuario ficticio y ejecuta el seed manualmente. El seed automático está desactivado. Los comandos de funciones siguientes usan la configuración raíz; añade `--project-ref TU_PROJECT_REF` para seleccionar explícitamente el proyecto educativo, ya que el enlace anterior pertenece al perfil `profiles/study/`.
 
 ## 2. Desplegar API autenticada
 
 ```bash
-supabase functions deploy memory-write
-supabase functions deploy memory-recall
+supabase functions deploy memory-write --project-ref TU_PROJECT_REF
+supabase functions deploy memory-recall --project-ref TU_PROJECT_REF
 ```
 
 Estas funciones requieren un JWT válido. No desactives `verify_jwt`.
@@ -24,8 +24,8 @@ Estas funciones requieren un JWT válido. No desactives `verify_jwt`.
 ## 3. Desplegar workers
 
 ```bash
-supabase functions deploy matrix-embedding-worker
-supabase functions deploy matrix-query-embedding-worker
+supabase functions deploy matrix-embedding-worker --project-ref TU_PROJECT_REF
+supabase functions deploy matrix-query-embedding-worker --project-ref TU_PROJECT_REF
 ```
 
 Los workers reciben llamadas internas de `pg_net`. Por ello usan `verify_jwt = false`, pero rechazan toda petición que no incluya el secreto configurado en `x-matrix-worker-secret`.

@@ -1,0 +1,15 @@
+{
+  "name": "matrix-memory-validation",
+  "version": "1.1.1",
+  "private": true,
+  "scripts": {
+    "check": "deno check --node-modules-dir=manual --config supabase/functions/matrix-mcp/deno.json supabase/functions/matrix-mcp/index.ts",
+    "test": "deno test --node-modules-dir=manual --config supabase/functions/matrix-mcp/deno.json tests/mcp_test.ts"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "deno": "2.5.6",
+    "postgres": "3.4.8",
+    "zod": "4.6.7"
+  }
+}

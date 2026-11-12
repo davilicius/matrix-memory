@@ -1,4 +1,6 @@
-# Matrix Memory 1.2
+# Matrix Memory 1.2 + MCP OAuth
+
+Actualización del 12 de noviembre de 2026: se incorpora el MCP de producción (adaptación portátil **1.1.1**) y el historial real de **16 migraciones**. El perfil educativo anterior se conserva en `profiles/study/`. Consulta [sincronización y requisitos de producción](docs/production-sync-2026-11.md) antes de conectar el despliegue automático.
 
 Modelo educativo de memoria semántica de largo plazo para agentes de inteligencia artificial, construido con PostgreSQL, Supabase y `pgvector`.
 
@@ -52,7 +54,7 @@ Los embeddings usan `Supabase/gte-small` con 384 dimensiones. La escritura y rec
 1. Lee [Guía de estudio](docs/study-guide.md).
 2. Revisa [Modelo de memoria](docs/memory-model.md).
 3. Recorre la [Arquitectura](docs/architecture.md).
-4. Aplica todas las migraciones en orden: base `0001`, contrato `0002` y correcciones posteriores de permisos y recuperación de servidor.
+4. Aplica las migraciones del perfil `profiles/study/` en orden: base `0001`, contrato `0002` y correcciones posteriores. Las migraciones de la raíz pertenecen al historial de la instalación existente.
 5. Carga el `seed.sql` con un usuario de prueba.
 6. Ejecuta [Laboratorio SQL](examples/learning-lab.sql).
 7. Revisa [Despliegue de embeddings](docs/deployment.md) si quieres activar la parte semántica.
@@ -62,16 +64,16 @@ Los embeddings usan `Supabase/gte-small` con 384 dimensiones. La escritura y rec
 Requisitos:
 
 - Un proyecto de Supabase destinado a pruebas.
-- Supabase CLI actualizado.
+- Supabase CLI; la regresión educativa está fijada a 2.121.0.
 - Un usuario de prueba creado mediante Supabase Auth.
 
 ```bash
-supabase link --project-ref TU_PROJECT_REF
-supabase db push
-supabase functions deploy memory-write
-supabase functions deploy memory-recall
-supabase functions deploy matrix-embedding-worker
-supabase functions deploy matrix-query-embedding-worker
+supabase --workdir profiles/study link --project-ref TU_PROJECT_REF
+supabase --workdir profiles/study db push
+supabase functions deploy memory-write --project-ref TU_PROJECT_REF
+supabase functions deploy memory-recall --project-ref TU_PROJECT_REF
+supabase functions deploy matrix-embedding-worker --project-ref TU_PROJECT_REF
+supabase functions deploy matrix-query-embedding-worker --project-ref TU_PROJECT_REF
 ```
 
 Antes de activar los workers, configura los secretos y el cron siguiendo [deployment.md](docs/deployment.md). Nunca uses un proyecto con datos reales para los ejercicios.
@@ -82,8 +84,9 @@ Antes de activar los workers, configura los secretos y el cron siguiendo [deploy
 docs/                         teoría, arquitectura y despliegue
 examples/                     recuerdos y ejercicios sintéticos
 skill/matrix-memory.example/  ejemplo de integración con un agente
-supabase/functions/           API y workers de embeddings
-supabase/migrations/          esquema 1.1 y actualización 1.2
+supabase/functions/           API, workers y servidor MCP OAuth
+supabase/migrations/          las 16 migraciones de la instalación existente
+profiles/study/               instalación educativa con el historial anterior
 supabase/snippets/            activación manual y consciente
 tests/                        contrato y controles básicos
 ```
@@ -106,7 +109,7 @@ El [roadmap de recuperación semántica](ROADMAP.md) propone filtros estructurad
 
 ## Estado
 
-Versión educativa del contrato **Matrix 1.2**, actualizada a partir de una implementación funcional y sanitizada para fines de aprendizaje. El trabajo posterior a la auditoría está documentado en [ROADMAP.md](ROADMAP.md).
+Contrato **Matrix 1.2** con código de producción sanitizado, MCP OAuth y un perfil educativo separado. Publicar el repositorio no activa la integración ni modifica Supabase. El trabajo posterior a la auditoría está documentado en [ROADMAP.md](ROADMAP.md).
 
 ## Referencias
 

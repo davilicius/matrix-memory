@@ -41,13 +41,13 @@ alter default privileges for role postgres in schema public
   grant execute on functions to anon, authenticated, service_role;
 SQL
 fi
-cp supabase/migrations/000[12]_*.sql "$test_root/supabase/migrations/"
+cp profiles/study/supabase/migrations/000[12]_*.sql "$test_root/supabase/migrations/"
 supabase --workdir "$test_root" migration up --local
 if [[ "$mode" == strict ]]; then sql < tests/before-grants.sql; fi
-cp supabase/migrations/20261021211445_explicit_server_rpc_grants.sql "$test_root/supabase/migrations/"
+cp profiles/study/supabase/migrations/20261021211445_explicit_server_rpc_grants.sql "$test_root/supabase/migrations/"
 supabase --workdir "$test_root" migration up --local
 sql < tests/before-server-recall.sql
-cp supabase/migrations/20261021212808_server_recall_owner_scope.sql "$test_root/supabase/migrations/"
+cp profiles/study/supabase/migrations/20261021212808_server_recall_owner_scope.sql "$test_root/supabase/migrations/"
 supabase --workdir "$test_root" migration up --local
 suite
 
@@ -56,7 +56,7 @@ supabase --workdir "$test_root" db reset --local --no-seed
 suite
 
 # Reapplication must not broaden ACLs or change behavior.
-sql < supabase/migrations/20261021211445_explicit_server_rpc_grants.sql
-sql < supabase/migrations/20261021212808_server_recall_owner_scope.sql
+sql < profiles/study/supabase/migrations/20261021211445_explicit_server_rpc_grants.sql
+sql < profiles/study/supabase/migrations/20261021212808_server_recall_owner_scope.sql
 suite
 supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error

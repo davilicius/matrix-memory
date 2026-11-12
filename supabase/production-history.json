@@ -1,0 +1,90 @@
+{
+  "observed_at": "2026-11-12",
+  "schema_version": "1.2",
+  "purpose": "Applied production history; not a portable fresh-install profile",
+  "sanitization": {
+    "20260818195720": "Project URL replaced with current_setting('matrix.project_url')"
+  },
+  "migrations": [
+    {
+      "version": "20260723234127",
+      "name": "create_matrix_cognitive_core",
+      "sha256": "fee044f0e17bf1e096f238ecc3e5ba14db8dd0862c5ee9f12cae2fe83f69dfd3"
+    },
+    {
+      "version": "20260723234338",
+      "name": "harden_matrix_security_and_indexes",
+      "sha256": "b630a5016cbe8f87cc5c6e6db17e10917dd8cf0d8535d33b8af8a63c50824b46"
+    },
+    {
+      "version": "20260818195341",
+      "name": "matrix_embedding_pipeline_core",
+      "sha256": "e6d9eb1163aceaef6c8eb1c0c12a6d3e8bfc74873f1648fb14fa60a129578d8f"
+    },
+    {
+      "version": "20260818195506",
+      "name": "matrix_canonical_recall_1_2",
+      "sha256": "a84ba1748152a004a58b173c3f91c32329a912210c81a590ea9480cd6f5e28bb"
+    },
+    {
+      "version": "20260818195720",
+      "name": "activate_matrix_embedding_worker",
+      "sha256": "21407da8744236d59f5b3630a45e5246040f04b7c706c86d5977fc712c3b389e"
+    },
+    {
+      "version": "20260818195826",
+      "name": "tune_matrix_embedding_batches",
+      "sha256": "db232d0f94d940f383160f526660206939cf0675f4c0b1f74c9ae4360726c51b"
+    },
+    {
+      "version": "20260818195941",
+      "name": "deduplicate_matrix_embedding_queue",
+      "sha256": "3117589c40e43641663155d82f5809b6139df7edacb0bce3c4d02e56e8970cc5"
+    },
+    {
+      "version": "20260818200048",
+      "name": "serialize_matrix_embedding_worker",
+      "sha256": "d6c2c5315efe0296b91eb113f8f09e6f0026c378bce94fdb0b9b800e72b3face"
+    },
+    {
+      "version": "20260818200246",
+      "name": "reconcile_matrix_remember_contract",
+      "sha256": "930fcf05059bbd75a5d4ea060b8671a34525b41e58f78c76991be943a11f93c5"
+    },
+    {
+      "version": "20260818200404",
+      "name": "fix_matrix_embedding_trigger_privileges",
+      "sha256": "29183e95c3d9aa62cf840d4622b35b821b25eabe8bde3f15155c89df81b74011"
+    },
+    {
+      "version": "20260818200648",
+      "name": "matrix_sql_semantic_recall_adapter",
+      "sha256": "ce135671e26d9de3f777cefe98bd77e15246a961614399bf114e35bb479b11a0"
+    },
+    {
+      "version": "20260818200943",
+      "name": "harden_matrix_semantic_recall_privileges",
+      "sha256": "2113009a879b9d046aa3d5c2c513c3d104cb0ffcc9c33c31cbac4e42eb3586f3"
+    },
+    {
+      "version": "20260818202958",
+      "name": "separate_matrix_updated_at_triggers",
+      "sha256": "8736b59011a7524a5e768a17282b4c87d340c491caa5d5800b01b0c64328544b"
+    },
+    {
+      "version": "20260827210907",
+      "name": "allow_owner_insert_memory_versions",
+      "sha256": "ad7acb402081eb8e56c3031c5d6cdfd519934f6fe81df5eb78332d625c37f316"
+    },
+    {
+      "version": "20261021215121",
+      "name": "explicit_server_rpc_grants",
+      "sha256": "4e540f53cb2cad491e041e7593f748cb4300892d02d2e6efc3c7af9b78cf753a"
+    },
+    {
+      "version": "20261021215133",
+      "name": "server_recall_owner_scope",
+      "sha256": "9b074100bf002ad729f540c7913d7c7daedc1b744354ae8aaba8d10951eed6c4"
+    }
+  ]
+}

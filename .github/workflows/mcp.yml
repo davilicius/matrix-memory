@@ -1,0 +1,23 @@
+name: Matrix MCP and production history
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  mcp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install locked test dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Type check and synthetic MCP tests
+        run: |
+          npm run check
+          npm test
+      - name: Check production migration history
+        run: python3 tests/check-production-history.py
