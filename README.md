@@ -1,6 +1,6 @@
 # Matrix Memory 1.2 + MCP OAuth
 
-MCP **1.4.0** añade [telemetría de operaciones](docs/operation-telemetry.md): duración, resultados y errores con identificadores de solicitud, sin copiar recuerdos ni credenciales a los logs. Conserva `supersede` de 1.3.0 para sustituciones atómicas completas o parciales; ver [contrato y despliegue manual](docs/atomic-supersession.md). El esquema base continúa en 1.2.
+MCP **1.5.0** admite el protocolo `2026-07-28` y conserva la compatibilidad con clientes anteriores. Incluye descubrimiento moderno y [telemetría de operaciones](docs/operation-telemetry.md), con versión de protocolo saneada y sin contenido privado. Mantiene las ocho herramientas, OAuth y las [sustituciones atómicas](docs/atomic-supersession.md); el esquema base continúa en 1.2. Ver [compatibilidad y verificación](docs/protocol-compatibility.md).
 
 Actualización del 12 de noviembre de 2026: se incorpora el MCP de producción (adaptación portátil **1.1.1**) y el historial real de **16 migraciones**. El perfil educativo anterior se conserva en `profiles/study/`. Consulta [sincronización y requisitos de producción](docs/production-sync-2026-11.md) antes de conectar el despliegue automático.
 

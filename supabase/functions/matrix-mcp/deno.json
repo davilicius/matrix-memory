@@ -1,8 +1,7 @@
 {
   "imports": {
-    "@modelcontextprotocol/sdk/server/mcp.js": "npm:@modelcontextprotocol/sdk@1.32.2/server/mcp.js",
-    "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js": "npm:@modelcontextprotocol/sdk@1.32.2/server/webStandardStreamableHttp.js",
     "zod": "npm:zod@4.6.7",
-    "postgres": "npm:postgres@3.4.8"
+    "postgres": "npm:postgres@3.4.8",
+    "@modelcontextprotocol/server": "npm:@modelcontextprotocol/server@2.4.0"
   }
 }

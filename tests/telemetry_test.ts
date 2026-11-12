@@ -17,7 +17,7 @@ function fixture(fn:Backend['search']=async()=>({ok:true}),auth:(t:string,r?:(v:
 function last(events:OperationEvent[],response:Response){
   eq(events.length,1);const e=events[0];
   ok(/^[0-9a-f-]{36}$/.test(e.request_id));eq(response.headers.get('X-Matrix-Request-Id'),e.request_id);
-  eq(e.http_status,response.status);ok(e.duration_ms>=0);eq(e.server_version,'1.4.0');
+  eq(e.http_status,response.status);ok(e.duration_ms>=0);eq(e.server_version,'1.5.0');
   ok(!JSON.stringify(e).includes(marker));return e;
 }
 
@@ -56,7 +56,7 @@ Deno.test('invalid JSON and protocol rejection receive structured logs',async()=
   const g=fixture();const r=await g.handler(request(call('status'),{Accept:'text/plain'}));
   eq(last(g.events,r).error_code,'NOT_ACCEPTABLE');eq(g.calls(),0);
   const h=fixture();const malformed=await h.handler(request({private:marker}));eq(last(h.events,malformed).error_code,'INVALID_RPC');
-  const i=fixture();const protocol=await i.handler(request(call('status'),{'MCP-Protocol-Version':marker}));eq(last(i.events,protocol).error_code,'PROTOCOL_VERSION');eq(i.calls(),0);
+  const i=fixture();const protocol=await i.handler(request(call('status'),{'MCP-Protocol-Version':marker}));eq(last(i.events,protocol).error_code,'PROTOCOL_METADATA_INVALID');eq(i.calls(),0);
 });
 Deno.test('HTTP guards, auth rejection and unexpected failures all emit one safe event',async()=>{
   for(const [override,status,code] of [[{Origin:'https://'+marker+'.invalid'},403,'ORIGIN_DENIED'],[{'Content-Type':'text/plain'},415,'CONTENT_TYPE']] as const){
@@ -110,4 +110,12 @@ Deno.test('batch requests preserve each operation outcome including SDK validati
   const events=f.events.sort((a,b)=>a.batch_index!-b.batch_index!);
   eq(events[0].outcome,'empty');eq(events[1].outcome,'success');eq(events[2].error_code,'INVALID_PARAMS');eq(events[3].error_code,'UNKNOWN_TOOL');
   eq(new Set(events.map(e=>e.request_id)).size,1);ok(!JSON.stringify(events).includes(marker));
+});
+
+Deno.test('protocol diagnostics keep only bounded date versions, never arbitrary header contents',async()=>{
+  for(const value of ['2026-07-28','2025-11-25',marker,'2026-99-99','x'.repeat(2000)]){
+    const f=fixture();const r=await f.handler(request(call('status'),{'MCP-Protocol-Version':value}));
+    const e=last(f.events,r);eq(e.protocol_version,value==='2026-07-28'||value==='2025-11-25'?value:'invalid');
+  }
+  const f=fixture();const r=await f.handler(request(call('status')));eq(last(f.events,r).protocol_version,'absent');
 });
