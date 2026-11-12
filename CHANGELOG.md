@@ -1,5 +1,15 @@
 # Cambios
 
+## MCP 1.5.0 - 2026-11-12
+
+- Actualiza el servidor al SDK oficial 2.4.0 para atender protocolo 2026-07-28 y discovery moderno, conservando clientes anteriores.
+- Conserva OAuth, controles HTTP, ocho herramientas y transacciones SQL sin cambios.
+- Añade pruebas de ambas versiones, cabeceras/metadatos, autenticación, privacidad e idempotencia.
+
+## MCP 1.4.1 - 2026-11-12
+
+- Diagnóstico acotado de MCP-Protocol-Version para identificar rechazos iniciales sin registrar cabeceras completas.
+
 ## MCP 1.4.0 - 2026-11-12
 
 - Registra duración, resultado y códigos de error por operación, incluidos rechazos HTTP y errores MCP con HTTP 200.

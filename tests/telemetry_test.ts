@@ -17,7 +17,7 @@ function fixture(fn:Backend['search']=async()=>({ok:true}),auth:(t:string,r?:(v:
 function last(events:OperationEvent[],response:Response){
   eq(events.length,1);const e=events[0];
   ok(/^[0-9a-f-]{36}$/.test(e.request_id));eq(response.headers.get('X-Matrix-Request-Id'),e.request_id);
-  eq(e.http_status,response.status);ok(e.duration_ms>=0);eq(e.server_version,'1.4.1');
+  eq(e.http_status,response.status);ok(e.duration_ms>=0);eq(e.server_version,'1.5.0');
   ok(!JSON.stringify(e).includes(marker));return e;
 }
 
@@ -56,7 +56,7 @@ Deno.test('invalid JSON and protocol rejection receive structured logs',async()=
   const g=fixture();const r=await g.handler(request(call('status'),{Accept:'text/plain'}));
   eq(last(g.events,r).error_code,'NOT_ACCEPTABLE');eq(g.calls(),0);
   const h=fixture();const malformed=await h.handler(request({private:marker}));eq(last(h.events,malformed).error_code,'INVALID_RPC');
-  const i=fixture();const protocol=await i.handler(request(call('status'),{'MCP-Protocol-Version':marker}));eq(last(i.events,protocol).error_code,'PROTOCOL_VERSION');eq(i.calls(),0);
+  const i=fixture();const protocol=await i.handler(request(call('status'),{'MCP-Protocol-Version':marker}));eq(last(i.events,protocol).error_code,'PROTOCOL_METADATA_INVALID');eq(i.calls(),0);
 });
 Deno.test('HTTP guards, auth rejection and unexpected failures all emit one safe event',async()=>{
   for(const [override,status,code] of [[{Origin:'https://'+marker+'.invalid'},403,'ORIGIN_DENIED'],[{'Content-Type':'text/plain'},415,'CONTENT_TYPE']] as const){
