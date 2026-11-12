@@ -82,7 +82,7 @@ Deno.test('HTTP boundary rejects unauthorized requests and routes authenticated 
   const list = await handler(request({ jsonrpc: '2.0', id: 1, method: 'tools/list' }));
   assert.equal(list.status, 200);
   const listed = await list.json();
-  assert.equal(listed.result.tools.length, 6);
+  assert.equal(listed.result.tools.length, 7);
   const response = await handler(request({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'search', arguments: { query: 'synthetic' } } }));
   assert.equal(response.status, 200);
   assert.equal((await response.json()).result.structuredContent.ok, true);
