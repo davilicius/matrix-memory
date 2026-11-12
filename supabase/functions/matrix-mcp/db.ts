@@ -33,6 +33,11 @@ export function makeBackend(databaseUrl:string, ownerId:string):Backend {
     });
   }
   return {
+    async supersede(args){return await tx(async q=>{
+      const payload={...args,replacement:{...args.replacement,metadata:{...args.replacement.metadata,channel:'matrix-mcp'}}};
+      const result=(await q`select public.matrix_supersede(${q.json(payload)}::jsonb) as result`)[0].result;
+      return {...result,quality_warnings:qualityWarnings(args.replacement)};
+    });},
     async resolve_current(args){return currentContext(await this.search({...args,hops:1}));},
     async search(args){
       const payload={...args,owner_id:OWNER,channel:'matrix-mcp'};
@@ -90,7 +95,7 @@ export function makeBackend(databaseUrl:string, ownerId:string):Backend {
     async status(){return await tx(async q=>{
       const info=(await q`select public.matrix_schema_info() as contract`)[0].contract;
       const stats=(await q`select count(*)::int as memories,count(*) filter(where lifecycle_status='active')::int as active,count(*) filter(where embedding is not null)::int as indexed,max(created_at) as last_saved_at from public.memory_nodes where owner_id=${OWNER}::uuid`)[0];
-      return {status:'ok',server_version:VERSION,schema_version:info.schema_version,identity:'Matrix owner',permissions:['resolve_current','search','fetch','related','list_recent','remember','status'],...stats};
+      return {status:'ok',server_version:VERSION,schema_version:info.schema_version,identity:'Matrix owner',permissions:['resolve_current','search','fetch','related','list_recent','remember','supersede','status'],...stats};
     });}
   };
 }

@@ -60,3 +60,10 @@ sql < profiles/study/supabase/migrations/20261021211445_explicit_server_rpc_gran
 sql < profiles/study/supabase/migrations/20261021212808_server_recall_owner_scope.sql
 suite
 supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error
+
+# Additive replacement API after the legacy ACL regressions. Exercise both
+# default-grant modes against the real disposable Postgres/Supabase database.
+for migration in supabase/migrations/*_atomic_memory_supersession.sql; do sql < "$migration"; done
+sql < tests/supersession.sql
+bash tests/supersession-concurrency.sh "supabase_db_$project"
+supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error

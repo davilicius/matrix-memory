@@ -30,7 +30,7 @@ flowchart TD
 
 ## Escritura canónica
 
-`matrix_remember(jsonb)` es la única frontera estable de escritura. La función:
+`matrix_remember(jsonb)` guarda memorias nuevas. `matrix_supersede(jsonb)` añade la operación transaccional de sustitución descrita en [su contrato](atomic-supersession.md). La función de guardado:
 
 1. determina al propietario autenticado;
 2. valida los campos mínimos;
