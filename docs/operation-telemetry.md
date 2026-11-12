@@ -7,6 +7,9 @@ SDK validation errors with HTTP 200 and `isError` are failures, not successes.
 For supported JSON-RPC batches, each item has its own event with `batch_index`;
 all share the server-generated request ID. A rejected batch has one envelope event.
 
+MCP 1.4.1 adds `protocol_version`: only a bounded date-shaped value from
+`MCP-Protocol-Version`, or `absent` / `invalid`. No other header value is logged.
+
 ## Fields and privacy
 
 | Field | Meaning |
@@ -23,7 +26,7 @@ all share the server-generated request ID. A rejected batch has one envelope eve
 | `result_count`, `retrieval_mode` | Retrieval count and hybrid/text fallback, when applicable |
 
 No prompts, queries, memory content, titles, event keys, memory IDs, owner IDs,
-client-supplied request IDs, OAuth claims, tokens, URLs, headers, exception messages,
+client-supplied request IDs, OAuth claims, tokens, URLs, raw headers, exception messages,
 SQL text or database error details are copied into these events. Unknown exceptions
 become `BACKEND_ERROR` or `REQUEST_FAILED`. Existing backend retrieval-history
 behavior is unchanged; this privacy statement concerns the new telemetry only.

@@ -1,13 +1,14 @@
 // Only bounded operational metadata may enter this event. Never pass request bodies,
-// headers, user-supplied IDs, exception messages, SQL details or memory contents.
+// raw headers, user-supplied IDs, exception messages, SQL details or memory contents.
+// The protocol version is the sole header-derived field, sanitized below.
 export const operations = ['search','resolve_current','fetch','related','list_recent','remember','supersede','status'] as const;
-const methods = ['initialize','ping','tools/list','tools/call','notifications/initialized','notifications/cancelled'] as const;
+const methods = ['server/discover','initialize','ping','tools/list','tools/call','notifications/initialized','notifications/cancelled'] as const;
 export type Outcome = 'success'|'empty'|'existing'|'conflict'|'error'|'rejected'|'accepted';
 export type AuthFailure = 'AUTH_INVALID'|'AUTH_UNAVAILABLE';
 export type ToolObservation = {outcome:Outcome; error_code?:string; duration_ms:number; result_count?:number; retrieval_mode?:'hybrid'|'text_fallback'};
 export type OperationEvent = {
   event:'matrix_operation'; schema_version:1; server_version:string; request_id:string;
-  timestamp:string; batch_index?:number; duration_ms:number; http_status:number; method:string;
+  protocol_version?:string; timestamp:string; batch_index?:number; duration_ms:number; http_status:number; method:string;
   operation:string; outcome:Outcome; error_code?:string; rpc_code?:number;
   tool_duration_ms?:number; result_count?:number; retrieval_mode?:'hybrid'|'text_fallback';
 };
@@ -37,4 +38,9 @@ export function resultObservation(name:string,result:any):Omit<ToolObservation,'
   }
   if(result?.mode==='hybrid'||result?.mode==='text_fallback')observation.retrieval_mode=result.mode;
   return observation;
+}
+
+export function safeProtocolVersion(value:string|null):string {
+  if(value===null)return 'absent';
+  return /^20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(value)?value:'invalid';
 }

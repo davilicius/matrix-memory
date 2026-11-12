@@ -1,6 +1,6 @@
 {
   "name": "matrix-memory-validation",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "scripts": {
     "check": "deno check --node-modules-dir=manual --config supabase/functions/matrix-mcp/deno.json supabase/functions/matrix-mcp/index.ts",

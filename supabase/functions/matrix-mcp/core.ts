@@ -5,9 +5,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { z } from 'zod';
 
-import { classifyError, consoleSink, elapsed, resultObservation, safeMethod, safeOperation, type AuthFailure, type EventSink, type OperationEvent, type ToolObservation } from './telemetry.ts';
+import { classifyError, consoleSink, elapsed, resultObservation, safeProtocolVersion, safeMethod, safeOperation, type AuthFailure, type EventSink, type OperationEvent, type ToolObservation } from './telemetry.ts';
 
-export const VERSION = '1.4.0';
+export const VERSION = '1.4.1';
 export const memoryTypes = ['episode','fact','decision','intention','project','reflection','preference','procedure','identity','hypothesis'] as const;
 const truth = ['reported','verified','inferred','disputed','unknown'] as const;
 const relationTypes = ['related_to','caused','resulted_in','part_of','involves','occurred_before','occurred_after','contradicts','supersedes','supports','inspired','depends_on','same_topic_as','located_at'] as const;
@@ -89,7 +89,7 @@ export function makeHandler(db:Backend,authenticate:(token:string,report?:(reaso
   let minute=0,count=0;
   return async(req:Request):Promise<Response>=>{
     const started=performance.now();
-    const event:OperationEvent={event:'matrix_operation',schema_version:1,server_version:VERSION,request_id:crypto.randomUUID(),timestamp:new Date().toISOString(),duration_ms:0,http_status:500,method:'unknown',operation:'none',outcome:'error'};
+    const event:OperationEvent={event:'matrix_operation',schema_version:1,server_version:VERSION,request_id:crypto.randomUUID(),timestamp:new Date().toISOString(),protocol_version:safeProtocolVersion(req.headers.get('mcp-protocol-version')),duration_ms:0,http_status:500,method:'unknown',operation:'none',outcome:'error'};
     const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Matrix-Request-Id':event.request_id};
     const metadataUrl=resource+'/oauth-protected-resource';
     let toolObserved=false;
