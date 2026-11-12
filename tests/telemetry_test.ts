@@ -54,7 +54,9 @@ Deno.test('invalid JSON and protocol rejection receive structured logs',async()=
   const f=fixture();const res=await f.handler(new Request(resource,{method:'POST',headers,body:'{'+marker}));
   eq(last(f.events,res).error_code,'INVALID_JSON');eq(f.calls(),0);
   const g=fixture();const r=await g.handler(request(call('status'),{Accept:'text/plain'}));
-  eq(last(g.events,r).error_code,'PROTOCOL_REJECTED');eq(g.calls(),0);
+  eq(last(g.events,r).error_code,'NOT_ACCEPTABLE');eq(g.calls(),0);
+  const h=fixture();const malformed=await h.handler(request({private:marker}));eq(last(h.events,malformed).error_code,'INVALID_RPC');
+  const i=fixture();const protocol=await i.handler(request(call('status'),{'MCP-Protocol-Version':marker}));eq(last(i.events,protocol).error_code,'PROTOCOL_VERSION');eq(i.calls(),0);
 });
 Deno.test('HTTP guards, auth rejection and unexpected failures all emit one safe event',async()=>{
   for(const [override,status,code] of [[{Origin:'https://'+marker+'.invalid'},403,'ORIGIN_DENIED'],[{'Content-Type':'text/plain'},415,'CONTENT_TYPE']] as const){

@@ -155,7 +155,7 @@ export function makeHandler(db:Backend,authenticate:(token:string,report?:(reaso
         if([-32700,-32600,-32601,-32602,-32603].includes(rpc))target.rpc_code=rpc;
         if(result?.error||result?.result?.isError||response.status>=400){
           target.outcome='rejected';
-          target.error_code??=rpc===-32700?'INVALID_JSON':target.operation==='unknown'&&target.method==='tools/call'?'UNKNOWN_TOOL':target.method==='tools/call'&&result?.result?.isError?'INVALID_PARAMS':rpc===-32601?'UNKNOWN_METHOD':'PROTOCOL_REJECTED';
+          target.error_code??=rpc===-32700?'INVALID_RPC':response.status===406?'NOT_ACCEPTABLE':typeof result?.error?.message==='string'&&result.error.message.startsWith('Bad Request: Unsupported protocol version:')?'PROTOCOL_VERSION':target.operation==='unknown'&&target.method==='tools/call'?'UNKNOWN_TOOL':target.method==='tools/call'&&result?.result?.isError?'INVALID_PARAMS':rpc===-32601?'UNKNOWN_METHOD':'PROTOCOL_REJECTED';
         } else target.outcome=response.status===202?'accepted':'success';
       }
       if(messages.length&&(Array.isArray(body)||response.status===202)){
