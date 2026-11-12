@@ -1,5 +1,12 @@
 # Cambios
 
+## MCP 1.4.0 - 2026-11-12
+
+- Registra duración, resultado y códigos de error por operación, incluidos rechazos HTTP y errores MCP con HTTP 200.
+- Correlación por UUID generado en servidor; sin contenido privado, credenciales ni errores crudos en los eventos.
+- Distingue fallos de Auth, consultas vacías, fallback textual, reintentos y conflictos; conserva herramientas y esquema SQL.
+- Pruebas de privacidad, concurrencia, batches y fallo de logging sin alterar guardados exitosos.
+
 ## MCP 1.3.0 - 2026-11-12
 
 - Añade `supersede` y la RPC `matrix_supersede(jsonb)` para sustituciones completas o parciales en una transacción.

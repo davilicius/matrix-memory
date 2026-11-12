@@ -1,6 +1,6 @@
 # Matrix Memory 1.2 + MCP OAuth
 
-MCP **1.3.0** añade `supersede`: guardar una nueva decisión y sustituir una memoria previa de forma atómica, con alcance completo o parcial, reintentos idempotentes y protección frente a cambios concurrentes. Ver [contrato y despliegue manual](docs/atomic-supersession.md). El esquema base continúa en 1.2.
+MCP **1.4.0** añade [telemetría de operaciones](docs/operation-telemetry.md): duración, resultados y errores con identificadores de solicitud, sin copiar recuerdos ni credenciales a los logs. Conserva `supersede` de 1.3.0 para sustituciones atómicas completas o parciales; ver [contrato y despliegue manual](docs/atomic-supersession.md). El esquema base continúa en 1.2.
 
 Actualización del 12 de noviembre de 2026: se incorpora el MCP de producción (adaptación portátil **1.1.1**) y el historial real de **16 migraciones**. El perfil educativo anterior se conserva en `profiles/study/`. Consulta [sincronización y requisitos de producción](docs/production-sync-2026-11.md) antes de conectar el despliegue automático.
 
