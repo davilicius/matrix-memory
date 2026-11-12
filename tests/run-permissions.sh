@@ -4,12 +4,25 @@ cd "$(dirname "$0")/.."
 mode="${1:-strict}"
 case "$mode" in strict|legacy) ;; *) echo 'Use strict or legacy' >&2; exit 2 ;; esac
 test_root="$(mktemp -d)"
-project="matrix-acl-test-$$"
+project="matrix-acl-test-$mode-${test_root##*.}"
+# Isolate parallel CI jobs sharing a Docker host. A fixed 55432 port can
+# collide before any SQL test starts, even when project names are distinct.
+read -r db_port shadow_port < <(python3 - <<'PY'
+import socket
+sockets = [socket.socket(), socket.socket()]
+for sock in sockets:
+    sock.bind(('0.0.0.0', 0))
+print(*(sock.getsockname()[1] for sock in sockets))
+for sock in sockets:
+    sock.close()
+PY
+)
 mkdir -p "$test_root/supabase/migrations"
 cat > "$test_root/supabase/config.toml" <<EOF
 project_id = "$project"
 [db]
-port = 55432
+port = $db_port
+shadow_port = $shadow_port
 major_version = 17
 [db.seed]
 enabled = false
