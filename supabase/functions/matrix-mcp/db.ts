@@ -1,6 +1,7 @@
 import postgres from 'postgres';
 import { annotateMemory, qualityWarnings, currentContext } from './temporal.ts';
 import { VERSION, type Backend } from './core.ts';
+import { topicScopes, selectRecentTopics, resolveWithRecent } from './current-topic.ts';
 
 export function makeBackend(databaseUrl:string, ownerId:string):Backend {
   const OWNER = ownerId;
@@ -38,7 +39,30 @@ export function makeBackend(databaseUrl:string, ownerId:string):Backend {
       const result=(await q`select public.matrix_supersede(${q.json(payload)}::jsonb) as result`)[0].result;
       return {...result,quality_warnings:qualityWarnings(args.replacement)};
     });},
-    async resolve_current(args){return currentContext(await this.search({...args,hops:1}));},
+    async resolve_current({query,limit,topic}){
+      const {baseline,recent}=await resolveWithRecent(
+        ()=>this.search({query,limit,hops:1}),
+        ()=>tx(async q=>{
+          const entities=await q`select id,kind,canonical_name,aliases from public.entities where owner_id=${OWNER}::uuid and kind in ('project','organization','technology','device') order by id limit 501`;
+          const scopes=topicScopes(query,entities.slice(0,500),topic);
+          if(!scopes.length)return {status:'no_named_topic',items:[],topics:[],catalog_truncated:entities.length>500,coverage:'no_named_topic_no_recent_supplement'};
+          const rows=await q`select n.id,n.title,n.lifecycle_status,n.occurred_at,n.created_at,n.valid_from,n.valid_to,
+            coalesce((select jsonb_agg(me.entity_id) from public.memory_entities me where me.owner_id=${OWNER}::uuid and me.memory_node_id=n.id),'[]'::jsonb) entity_ids
+            from public.memory_nodes n where n.owner_id=${OWNER}::uuid and n.lifecycle_status='active'
+              and (n.valid_from is null or n.valid_from<=now()) and (n.valid_to is null or n.valid_to>now())
+            order by coalesce(n.occurred_at,n.created_at) desc,n.id desc limit 201`;
+          const items=selectRecentTopics(rows.slice(0,200),scopes,limit);
+          if(items.length){
+            const ids=items.map((m:any)=>m.id);
+            await q`insert into public.retrieval_history(owner_id,query_text,result_node_ids,metadata) values(${OWNER}::uuid,${query},${ids}::uuid[],${q.json({channel:'matrix-mcp',operation:'resolve_current_recent',pool_limit:200,topics:scopes.map(s=>s.term)})})`;
+          }
+          return {status:items.length?'supplemented':'no_match_in_recent_pool',items,topics:scopes.map(s=>({term:s.term,basis:s.basis})),pool_scanned:Math.min(rows.length,200),pool_truncated:rows.length>200,catalog_truncated:entities.length>500,coverage:'bounded_recent_topic_evidence_not_latest_state_guarantee'};
+        }),enrich);
+      return {...currentContext(baseline),recent_topic_candidates:recent.items,
+        recent_successor_candidates:recent.successor_candidates||[],
+        recent_context:{...recent,items:undefined,successor_candidates:undefined},
+        notice:'Candidatos y evidencia reciente del tema; revisar fuentes, fechas, sustituciones y contradicciones. La fecha de guardado no acredita vigencia y la búsqueda no es exhaustiva.'};
+    },
     async search(args){
       const payload={...args,owner_id:OWNER,channel:'matrix-mcp'};
       for(let attempt=0;attempt<4;attempt++){

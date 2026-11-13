@@ -29,7 +29,7 @@ export function classifyError(error:unknown):{outcome:Outcome;error_code:string}
   return {outcome:'error',error_code:'BACKEND_ERROR'};
 }
 export function resultObservation(name:string,result:any):Omit<ToolObservation,'duration_ms'> {
-  const rows=name==='search'?result?.hits:name==='resolve_current'?[...(result?.current_candidates??[]),...(result?.needs_review??[]),...(result?.historical_candidates??[])]:name==='list_recent'?result?.items:name==='related'?result?.memories:undefined;
+  const rows=name==='search'?result?.hits:name==='resolve_current'?[...(result?.current_candidates??[]),...(result?.needs_review??[]),...(result?.historical_candidates??[]),...(result?.recent_topic_candidates??[]),...(result?.recent_successor_candidates??[])]:name==='list_recent'?result?.items:name==='related'?result?.memories:undefined;
   const observation:Omit<ToolObservation,'duration_ms'>={outcome:'success'};
   if(Array.isArray(rows)){observation.result_count=rows.length;if(!rows.length)observation.outcome='empty';}
   if((name==='remember'||name==='supersede')&&result?.status==='existing'){
