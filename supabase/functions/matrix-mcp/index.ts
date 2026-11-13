@@ -1,3 +1,4 @@
+import { makeAppAuthorizer } from './access-db.ts';
 import { makeHandler } from './core.ts';
 import { makeBackend } from './db.ts';
 import { makeOAuthVerifier } from './oauth.ts';
@@ -11,4 +12,6 @@ Deno.serve(makeHandler(
   db,
   makeOAuthVerifier(config.url, config.anonKey, config.ownerId),
   config.url + '/functions/v1/matrix-mcp',
+  undefined,
+  makeAppAuthorizer(config.databaseUrl, config.ownerId),
 ));

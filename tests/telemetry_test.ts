@@ -1,4 +1,5 @@
-import {makeHandler, schemas, type Backend} from '../supabase/functions/matrix-mcp/core.ts';
+import { makeHandler } from './manager-fixture.ts';
+import { schemas, type Backend} from '../supabase/functions/matrix-mcp/core.ts';
 import {makeOAuthVerifier} from '../supabase/functions/matrix-mcp/oauth.ts';
 import {type OperationEvent, type AuthFailure} from '../supabase/functions/matrix-mcp/telemetry.ts';
 function eq(a:unknown,b:unknown){if(a!==b)throw new Error(`Expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);}
@@ -17,7 +18,7 @@ function fixture(fn:Backend['search']=async()=>({ok:true}),auth:(t:string,r?:(v:
 function last(events:OperationEvent[],response:Response){
   eq(events.length,1);const e=events[0];
   ok(/^[0-9a-f-]{36}$/.test(e.request_id));eq(response.headers.get('X-Matrix-Request-Id'),e.request_id);
-  eq(e.http_status,response.status);ok(e.duration_ms>=0);eq(e.server_version,'1.5.0');
+  eq(e.http_status,response.status);ok(e.duration_ms>=0);eq(e.server_version,'1.6.0');
   ok(!JSON.stringify(e).includes(marker));return e;
 }
 
@@ -92,7 +93,7 @@ Deno.test('concurrent requests have independent IDs and outcomes; logging failur
 });
 Deno.test('OAuth reports infrastructure failures separately from invalid or malformed tokens',async()=>{
   const owner='11111111-1111-4111-8111-111111111111';const url='https://example.supabase.co';
-  const token='test.'+btoa(JSON.stringify({sub:owner,iss:url+'/auth/v1',role:'authenticated',aud:'authenticated',client_id:'test-client',session_id:'test-session',exp:Date.now()/1000+300}))+'.test';
+  const token='test.'+btoa(JSON.stringify({sub:owner,iss:url+'/auth/v1',role:'authenticated',aud:'authenticated',client_id:owner,session_id:owner,exp:Date.now()/1000+300}))+'.test';
   for(const [status,expected] of [[401,'AUTH_INVALID'],[500,'AUTH_UNAVAILABLE'],[429,'AUTH_UNAVAILABLE']] as const){
     const verify=makeOAuthVerifier(url,'synthetic',owner,(async()=>new Response('',{status})) as typeof fetch);
     let code='';eq(await verify(token,c=>{code=c;}),false);eq(code,expected);

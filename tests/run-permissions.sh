@@ -80,3 +80,7 @@ for migration in supabase/migrations/*_atomic_memory_supersession.sql; do sql < 
 sql < tests/supersession.sql
 bash tests/supersession-concurrency.sh "supabase_db_$project"
 supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error
+
+for migration in supabase/migrations/*_application_permissions.sql; do sql < "$migration"; done
+sql < tests/application-permissions.sql
+supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error

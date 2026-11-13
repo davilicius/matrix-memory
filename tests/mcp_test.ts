@@ -1,3 +1,4 @@
+import { makeHandler } from './manager-fixture.ts';
 const assert = {
   equal(actual: unknown, expected: unknown, message = 'Values differ') {
     if (actual !== expected) throw new Error(message);
@@ -13,13 +14,13 @@ const assert = {
 };
 import { makeOAuthVerifier } from '../supabase/functions/matrix-mcp/oauth.ts';
 import { readConfig } from '../supabase/functions/matrix-mcp/config.ts';
-import { makeHandler, schemas, rejectSecrets, type Backend } from '../supabase/functions/matrix-mcp/core.ts';
+import {  schemas, rejectSecrets, type Backend } from '../supabase/functions/matrix-mcp/core.ts';
 
 const owner = '11111111-1111-4111-8111-111111111111';
 const other = '22222222-2222-4222-8222-222222222222';
 const url = 'https://example.supabase.co';
 function token(overrides: Record<string, unknown> = {}) {
-  const claims = { sub: owner, iss: url + '/auth/v1', role: 'authenticated', aud: 'authenticated', client_id: 'test-client', session_id: 'test-session', exp: Date.now() / 1000 + 300, ...overrides };
+  const claims = { sub: owner, iss: url + '/auth/v1', role: 'authenticated', aud: 'authenticated', client_id: owner, session_id: other, exp: Date.now() / 1000 + 300, ...overrides };
   return 'test.' + btoa(JSON.stringify(claims)).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '') + '.test';
 }
 
@@ -32,7 +33,7 @@ Deno.test('OAuth requires verified session, configured owner and OAuth client', 
     return Response.json({ id: owner, is_anonymous: false });
   }) as typeof fetch;
   const verify = makeOAuthVerifier(url, 'test-api-key', owner, fetcher);
-  assert.equal(await verify(token()), true);
+  assert.deepEqual(await verify(token()), {clientId:owner,sessionId:other});
   for (const invalid of [{ sub: other }, { iss: 'https://wrong.example/auth/v1' }, { role: 'service_role' }, { aud: 'other' }, { client_id: undefined }, { session_id: undefined }, { exp: 1 }]) {
     assert.equal(await verify(token(invalid)), false);
   }

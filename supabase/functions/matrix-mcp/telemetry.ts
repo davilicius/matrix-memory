@@ -8,7 +8,7 @@ export type AuthFailure = 'AUTH_INVALID'|'AUTH_UNAVAILABLE';
 export type ToolObservation = {outcome:Outcome; error_code?:string; duration_ms:number; result_count?:number; retrieval_mode?:'hybrid'|'text_fallback'};
 export type OperationEvent = {
   event:'matrix_operation'; schema_version:1; server_version:string; request_id:string;
-  protocol_version?:string; timestamp:string; batch_index?:number; duration_ms:number; http_status:number; method:string;
+  application_role?:'reader'|'writer'|'manager'; protocol_version?:string; timestamp:string; batch_index?:number; duration_ms:number; http_status:number; method:string;
   operation:string; outcome:Outcome; error_code?:string; rpc_code?:number;
   tool_duration_ms?:number; result_count?:number; retrieval_mode?:'hybrid'|'text_fallback';
 };
