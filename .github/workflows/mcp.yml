@@ -21,3 +21,7 @@ jobs:
           npm test
       - name: Check production migration history
         run: python3 tests/check-production-history.py
+      - name: Synthetic retrieval evaluation tests
+        run: |
+          python3 -m pip install numpy==2.3.4
+          python3 tests/retrieval_eval_test.py

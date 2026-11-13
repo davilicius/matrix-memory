@@ -1,0 +1,30 @@
+{
+  "gte": {
+    "repository": "Supabase/gte-small",
+    "revision": "93b36ff09519291b77d6000d2e86bd8565378086",
+    "model_file": "onnx/model.onnx",
+    "tokenizer_file": "tokenizer.json",
+    "dimensions": 384,
+    "precision": "float32",
+    "prefix_query": "",
+    "prefix_document": "",
+    "sha256": {
+      "model.onnx": "398a29991324e0b383afa13375d681ced3079c83e097fb1ebd9290d7498523b3",
+      "tokenizer.json": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0"
+    }
+  },
+  "e5": {
+    "repository": "intfloat/multilingual-e5-small",
+    "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "model_file": "onnx/model_qint8_avx512_vnni.onnx",
+    "tokenizer_file": "tokenizer.json",
+    "dimensions": 384,
+    "precision": "int8 (upstream ONNX artifact)",
+    "prefix_query": "query: ",
+    "prefix_document": "passage: ",
+    "sha256": {
+      "model.onnx": "dd476dd0c2514e9b9be83aeb3853fac0763e0bdf4a71645407587d77c48a2d88",
+      "tokenizer.json": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39"
+    }
+  }
+}
