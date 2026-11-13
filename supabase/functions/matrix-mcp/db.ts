@@ -1,6 +1,8 @@
 import postgres from 'postgres';
 import { annotateMemory, qualityWarnings, currentContext } from './temporal.ts';
 import { VERSION, type Backend } from './core.ts';
+import { addSpelling } from './spelling.ts';
+import { loadSpelling } from './spelling-db.ts';
 import { topicScopes, selectRecentTopics, resolveWithRecent } from './current-topic.ts';
 
 export function makeBackend(databaseUrl:string, ownerId:string):Backend {
@@ -33,6 +35,10 @@ export function makeBackend(databaseUrl:string, ownerId:string):Backend {
       return {...result,hits:(result.hits||[]).map(attach),associations:(result.associations||[]).map(attach),successor_candidates:rows.slice(0,200).filter((r:any)=>!seed.includes(r.id)).map((r:any)=>annotateMemory(r)),temporal_truncated:rows.length>200,temporal_depth_limit:8};
     });
   }
+  async function finishSearch(result:any,args:any){
+    const baseline=await enrich(result);
+    return await addSpelling(baseline,args.query,terms=>tx(q=>loadSpelling(q,OWNER,args,terms)),enrich);
+  }
   return {
     async supersede(args){return await tx(async q=>{
       const payload={...args,replacement:{...args.replacement,metadata:{...args.replacement.metadata,channel:'matrix-mcp'}}};
@@ -58,7 +64,7 @@ export function makeBackend(databaseUrl:string, ownerId:string):Backend {
           }
           return {status:items.length?'supplemented':'no_match_in_recent_pool',items,topics:scopes.map(s=>({term:s.term,basis:s.basis})),pool_scanned:Math.min(rows.length,200),pool_truncated:rows.length>200,catalog_truncated:entities.length>500,coverage:'bounded_recent_topic_evidence_not_latest_state_guarantee'};
         }),enrich);
-      return {...currentContext(baseline),recent_topic_candidates:recent.items,
+      return {...currentContext(baseline),spelling_candidates:baseline.spelling_candidates,spelling_successor_candidates:baseline.spelling_successor_candidates,spelling_context:baseline.spelling_context,recent_topic_candidates:recent.items,
         recent_successor_candidates:recent.successor_candidates||[],
         recent_context:{...recent,items:undefined,successor_candidates:undefined},
         notice:'Candidatos y evidencia reciente del tema; revisar fuentes, fechas, sustituciones y contradicciones. La fecha de guardado no acredita vigencia y la búsqueda no es exhaustiva.'};
@@ -67,11 +73,11 @@ export function makeBackend(databaseUrl:string, ownerId:string):Backend {
       const payload={...args,owner_id:OWNER,channel:'matrix-mcp'};
       for(let attempt=0;attempt<4;attempt++){
         const r=await tx(async q=>(await q`select public.matrix_semantic_recall(${q.json(payload)}::jsonb) as result`)[0].result);
-        if(r.status==='ready')return await enrich({...r.result,mode:'hybrid'});
+        if(r.status==='ready')return await finishSearch({...r.result,mode:'hybrid'},args);
         if(attempt<3)await new Promise(r=>setTimeout(r,1000));
       }
       const r=await tx(async q=>(await q`select public.matrix_recall(${q.json({...payload,channel:'matrix-mcp-text-fallback'})}::jsonb) as result`)[0].result);
-      return await enrich({...r,mode:'text_fallback',notice:'El índice semántico no estuvo listo; esta consulta usó búsqueda textual.'});
+      return await finishSearch({...r,mode:'text_fallback',notice:'El índice semántico no estuvo listo; esta consulta usó búsqueda textual.'},args);
     },
     async fetch({id,offset,length}){const fetched=await tx(async q=>{
       const rows=await q`select (to_jsonb(n)-'embedding'-'fts'-'content'-'embedding_error') || jsonb_build_object('content',substring(n.content from ${offset+1}::integer for ${length}::integer),'content_length',length(n.content),'offset',${offset}::integer,'next_offset',case when length(n.content)>${offset+length} then ${offset+length}::integer else null end) as memory,

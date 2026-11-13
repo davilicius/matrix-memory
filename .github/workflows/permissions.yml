@@ -21,4 +21,6 @@ jobs:
         with:
           version: 2.121.0
       - name: Fresh install, RLS, server RPCs and reset
-        run: bash tests/run-permissions.sh '${{ matrix.defaults }}'
+        run: |
+          npm ci --no-audit --no-fund
+          bash tests/run-permissions.sh '${{ matrix.defaults }}'
