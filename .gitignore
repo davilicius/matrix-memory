@@ -8,3 +8,7 @@ node_modules/
 dist/
 coverage/
 supabase/.temp/
+__pycache__/
+*.pyc
+eval-private/
+models/
