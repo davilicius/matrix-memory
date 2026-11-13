@@ -2,6 +2,8 @@
 
 MCP **1.8.0** añade [coincidencias ortográficas en español](docs/spanish-spelling.md) separadas de la búsqueda habitual y conserva la [evidencia reciente del proyecto](docs/current-topic-context.md). Mantiene [permisos por aplicación](docs/application-permissions.md), OAuth, [telemetría](docs/operation-telemetry.md) y [sustituciones atómicas](docs/atomic-supersession.md). El esquema de memoria continúa en 1.2; esta versión no añade migraciones ni modelos.
 
+Etapa en español aceptada y cerrada: [alcance y pruebas de 1.8.0](docs/release-1.8.0.md). La recuperación utiliza [RRF ponderado; existencia y uso de HNSW](docs/retrieval-flow.md). E5 y consultas entre idiomas quedan para una ampliación posterior.
+
 Actualización del 12 de noviembre de 2026: se incorpora el MCP de producción (adaptación portátil **1.1.1**) y el historial real de **16 migraciones**. El perfil educativo anterior se conserva en `profiles/study/`. Consulta [sincronización y requisitos de producción](docs/production-sync-2026-11.md) antes de conectar el despliegue automático.
 
 Modelo educativo de memoria semántica de largo plazo para agentes de inteligencia artificial, construido con PostgreSQL, Supabase y `pgvector`.
