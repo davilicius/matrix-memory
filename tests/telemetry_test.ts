@@ -1,5 +1,5 @@
 import { makeHandler } from './manager-fixture.ts';
-import { schemas, type Backend} from '../supabase/functions/matrix-mcp/core.ts';
+import { schemas, VERSION, type Backend} from '../supabase/functions/matrix-mcp/core.ts';
 import {makeOAuthVerifier} from '../supabase/functions/matrix-mcp/oauth.ts';
 import {type OperationEvent, type AuthFailure} from '../supabase/functions/matrix-mcp/telemetry.ts';
 function eq(a:unknown,b:unknown){if(a!==b)throw new Error(`Expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);}
@@ -18,7 +18,7 @@ function fixture(fn:Backend['search']=async()=>({ok:true}),auth:(t:string,r?:(v:
 function last(events:OperationEvent[],response:Response){
   eq(events.length,1);const e=events[0];
   ok(/^[0-9a-f-]{36}$/.test(e.request_id));eq(response.headers.get('X-Matrix-Request-Id'),e.request_id);
-  eq(e.http_status,response.status);ok(e.duration_ms>=0);eq(e.server_version,'1.6.0');
+  eq(e.http_status,response.status);ok(e.duration_ms>=0);eq(e.server_version,VERSION);
   ok(!JSON.stringify(e).includes(marker));return e;
 }
 
@@ -27,6 +27,7 @@ Deno.test('telemetry captures success, empty retrieval and fallback without quer
     ['search',{query:marker},{hits:[{content:marker}],mode:'hybrid'},1,'success'],
     ['search',{query:marker},{hits:[],mode:'text_fallback'},0,'empty'],
     ['resolve_current',{query:marker},{current_candidates:[],needs_review:[{content:marker}],historical_candidates:[],mode:'hybrid'},1,'success'],
+    ['resolve_current',{query:marker},{current_candidates:[],recent_topic_candidates:[{content:marker}],recent_successor_candidates:[{content:marker}]},2,'success'],
     ['list_recent',{}, {items:[]},0,'empty'],
     ['related',{id:'11111111-1111-4111-8111-111111111111'},{memories:[]},0,'empty'],
   ] as const){
