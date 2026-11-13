@@ -3,6 +3,11 @@
 Evaluation date: 2026-11-12 (America/Mexico_City). Production remains MCP 1.6.0.
 No schema, embedding worker, index, permissions or deployment configuration was changed.
 
+Follow-up: [Spanish priority and shadow validation](spanish-priority-validation.md)
+records later evidence review, natural utterances, current-state gaps and runtime
+measurements. The table below preserves the original experiment; it is not the
+latest deployment decision or a claim of general answer accuracy.
+
 ## Outcome
 
 A multilingual model with passages is promising, but is **not approved for a

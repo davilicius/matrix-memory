@@ -25,3 +25,4 @@ jobs:
         run: |
           python3 -m pip install numpy==2.3.4
           python3 tests/retrieval_eval_test.py
+          python3 tests/retrieval_shadow_test.py

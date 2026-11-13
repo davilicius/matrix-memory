@@ -65,3 +65,12 @@ It adds whole/chunk hybrid variants using the existing 0.30/0.45 reciprocal-rank
 weights and the same importance/confidence/emotion/title boosts. Ties are resolved
 by ID locally; production tie order is not guaranteed. Private NPZ files preserve
 query/document vectors for further experiments without repeating inference.
+
+## Offline shadow validation
+
+`shadow.py` contains the fixed fusion, profile/source fingerprints and freshness
+checks used in the later Spanish experiment. It is a library for local replay,
+not a network service. Run `python tests/retrieval_shadow_test.py` from the repo
+root. See `docs/spanish-priority-validation.md` for measured results, limitations
+and the remaining deployment gates. Keep all private inputs and outputs outside
+the repository, including manifests and model vectors.
