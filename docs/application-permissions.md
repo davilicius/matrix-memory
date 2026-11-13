@@ -76,8 +76,9 @@ La migración no concede permisos automáticamente ni contiene IDs de producció
 
 ## Despliegue manual y validación
 
-Aplicar la migración, registrar el cliente actual revisado con sus capacidades
-existentes y desplegar MCP 1.6.0. Verificar `status`, búsqueda y guardado desde el
+Aplicar las migraciones, registrar el cliente actual revisado con sus capacidades
+existentes y desplegar MCP 1.6.0. Conservar el binding privado del propietario
+del paquete desplegado; comprobar MATRIX_OWNER_ID antes de activar el endpoint. Verificar `status`, búsqueda y guardado desde el
 cliente conectado. El despliegue automático continúa desactivado.
 
 Pruebas Deno cubren ambos protocolos, tres perfiles, denegación predeterminada,
