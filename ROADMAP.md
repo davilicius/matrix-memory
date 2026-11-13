@@ -4,6 +4,17 @@ Este roadmap reúne mejoras detectadas al auditar búsquedas semánticas reales 
 
 **Estado al cierre de MCP 1.8.0:** la [etapa de cinco mejoras en español](docs/release-1.8.0.md) fue aceptada. Las propuestas de alcance, exclusiones y ranking enumeradas debajo siguen siendo un backlog independiente; no son requisitos pendientes para reabrir ese cierre ni funciones implementadas por la tolerancia ortográfica. E5 y consultas entre idiomas están aplazados. El índice HNSW ya existe; revisar su aprovechamiento requiere mediciones y no forma parte de un cambio aprobado en esta etapa.
 
+## Siguiente prioridad acordada — 13 de noviembre de 2026
+
+Retomar las cuatro propuestas de este roadmap como la siguiente etapa de mejora, en este orden:
+
+1. **P0 — Alcance y exclusiones estructuradas:** filtrar por ámbito y excluir dominios, entidades o etiquetas.
+2. **P1 — Ranking consciente del dominio:** ordenar según el ámbito solicitado y mejorar las señales del título.
+3. **P1 — Recuerdos personales autocontenidos:** separar experiencias y procedimientos para recuperarlos con su contexto suficiente.
+4. **P2 — Convenciones de claves:** estandarizar nuevas `event_key`, preservando las históricas y la idempotencia.
+
+El primer bloque a abordar es P0. Esta actualización registra la prioridad; los cuatro bloques siguen pendientes de implementación. La etapa MCP 1.8.0 permanece aceptada y cerrada. E5 y consultas entre idiomas continúan aplazados; optimizar el uso de HNSW no desplaza este orden.
+
 ## Línea base confirmada
 
 Antes de ampliar el contrato, la implementación ya conserva estas garantías:
