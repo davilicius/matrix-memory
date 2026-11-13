@@ -85,3 +85,6 @@ sql < tests/application-legacy-fixture.sql
 for migration in supabase/migrations/*_application_permissions*.sql; do sql < "$migration"; done
 sql < tests/application-permissions.sql
 supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error
+
+# Exact spelling SELECT from TypeScript, under RLS with synthetic records only.
+node_modules/.bin/deno run --node-modules-dir=manual --config supabase/functions/matrix-mcp/deno.json tests/spelling-postgres.ts | sql

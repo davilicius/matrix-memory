@@ -1,10 +1,10 @@
 {
   "name": "matrix-memory-validation",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "private": true,
   "scripts": {
     "check": "deno check --node-modules-dir=manual --config supabase/functions/matrix-mcp/deno.json supabase/functions/matrix-mcp/index.ts",
-    "test": "deno test --node-modules-dir=manual --config supabase/functions/matrix-mcp/deno.json tests/mcp_test.ts tests/temporal_test.ts tests/telemetry_test.ts tests/protocol_test.ts tests/access_test.ts tests/current-topic_test.ts"
+    "test": "deno test --node-modules-dir=manual --config supabase/functions/matrix-mcp/deno.json tests/mcp_test.ts tests/temporal_test.ts tests/telemetry_test.ts tests/protocol_test.ts tests/access_test.ts tests/current-topic_test.ts tests/spelling_test.ts"
   },
   "devDependencies": {
     "@modelcontextprotocol/server": "2.4.0",

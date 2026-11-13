@@ -41,6 +41,15 @@ Deno.test('telemetry distinguishes new write, exact retry and conflicting duplic
     const f=fixture(async()=>result);const res=await f.handler(request(call('remember',args)));eq(last(f.events,res).outcome,outcome);eq(f.calls(),1);
   }
 });
+
+Deno.test('spelling telemetry records bounded status and counts without words or sources',async()=>{
+  for(const status of ['skipped','supplemented','no_close_match','unavailable',marker]){
+    const f=fixture(async()=>({hits:[],spelling_candidates:[{content:marker,spelling_match:{input:marker}}],spelling_context:{status,query:marker}}));
+    const res=await f.handler(request(call('search',{query:marker})));
+    const e=last(f.events,res);eq(e.spelling_status,status===marker?undefined:status);eq(e.spelling_result_count,1);eq(e.outcome,'success');
+    ok(!JSON.stringify(e).includes(marker));
+  }
+});
 Deno.test('telemetry classifies DB errors with allowlisted codes and no raw exceptions',async()=>{
   for(const [code,outcome,expected] of [['P4090','conflict','P4090'],['57014','error','57014'],[marker,'error','BACKEND_ERROR']] as const){
     const f=fixture(async()=>{throw Object.assign(new Error(marker),{code,detail:marker});});

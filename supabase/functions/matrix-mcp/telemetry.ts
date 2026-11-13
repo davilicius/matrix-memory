@@ -5,12 +5,13 @@ export const operations = ['search','resolve_current','fetch','related','list_re
 const methods = ['server/discover','initialize','ping','tools/list','tools/call','notifications/initialized','notifications/cancelled'] as const;
 export type Outcome = 'success'|'empty'|'existing'|'conflict'|'error'|'rejected'|'accepted';
 export type AuthFailure = 'AUTH_INVALID'|'AUTH_UNAVAILABLE';
-export type ToolObservation = {outcome:Outcome; error_code?:string; duration_ms:number; result_count?:number; retrieval_mode?:'hybrid'|'text_fallback'};
+export type SpellingStatus = 'skipped'|'supplemented'|'no_close_match'|'unavailable';
+export type ToolObservation = {outcome:Outcome; error_code?:string; duration_ms:number; result_count?:number; retrieval_mode?:'hybrid'|'text_fallback';spelling_status?:SpellingStatus;spelling_result_count?:number};
 export type OperationEvent = {
   event:'matrix_operation'; schema_version:1; server_version:string; request_id:string;
   application_role?:'reader'|'writer'|'manager'; protocol_version?:string; timestamp:string; batch_index?:number; duration_ms:number; http_status:number; method:string;
   operation:string; outcome:Outcome; error_code?:string; rpc_code?:number;
-  tool_duration_ms?:number; result_count?:number; retrieval_mode?:'hybrid'|'text_fallback';
+  tool_duration_ms?:number; result_count?:number; retrieval_mode?:'hybrid'|'text_fallback';spelling_status?:SpellingStatus;spelling_result_count?:number;
 };
 export type EventSink = (event:OperationEvent)=>void;
 export const consoleSink:EventSink = event=>console.log(JSON.stringify(event));
@@ -37,6 +38,14 @@ export function resultObservation(name:string,result:any):Omit<ToolObservation,'
     if(result.same_content===false||result.same_operation===false){observation.outcome='conflict';observation.error_code='EXISTING_CONTENT_MISMATCH';}
   }
   if(result?.mode==='hybrid'||result?.mode==='text_fallback')observation.retrieval_mode=result.mode;
+  if(name==='search'||name==='resolve_current'){
+    const status=result?.spelling_context?.status;
+    if(['skipped','supplemented','no_close_match','unavailable'].includes(status))observation.spelling_status=status;
+    if(Array.isArray(result?.spelling_candidates)){
+      observation.spelling_result_count=Math.min(result.spelling_candidates.length,6);
+      if(observation.outcome==='empty'&&observation.spelling_result_count)observation.outcome='success';
+    }
+  }
   return observation;
 }
 
