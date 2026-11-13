@@ -1,4 +1,5 @@
-import {makeHandler, schemas, type Backend} from '../supabase/functions/matrix-mcp/core.ts';
+import { makeHandler } from './manager-fixture.ts';
+import { schemas, type Backend} from '../supabase/functions/matrix-mcp/core.ts';
 import type {OperationEvent} from '../supabase/functions/matrix-mcp/telemetry.ts';
 const url='https://example.supabase.co/functions/v1/matrix-mcp';
 const id='11111111-1111-4111-8111-111111111111';

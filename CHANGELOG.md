@@ -1,5 +1,12 @@
 # Cambios
 
+## MCP 1.6.0 - 2026-11-12
+
+- Añade perfiles por cliente OAuth: reader, writer y manager, con denegación predeterminada.
+- Valida permiso, sesión y consentimiento en cada solicitud; filtra herramientas y bloquea sustituciones encubiertas.
+- Protege once tablas públicas contra bypass OAuth directo y mantiene los controles de propietario.
+- Añade pruebas de permisos MCP, concurrencia y regresiones SQL transaccionales.
+
 ## MCP 1.5.0 - 2026-11-12
 
 - Actualiza el servidor al SDK oficial 2.4.0 para atender protocolo 2026-07-28 y discovery moderno, conservando clientes anteriores.

@@ -10,6 +10,10 @@ all share the server-generated request ID. A rejected batch has one envelope eve
 MCP 1.4.1 adds `protocol_version`: only a bounded date-shaped value from
 `MCP-Protocol-Version`, or `absent` / `invalid`. No other header value is logged.
 
+MCP 1.6.0 adds the bounded `application_role` enum (reader/writer/manager) and
+APP_NOT_ALLOWED, APP_AUTH_UNAVAILABLE and PERMISSION_DENIED codes. No application
+identifier, session ID or private grant label is logged.
+
 ## Fields and privacy
 
 | Field | Meaning |
