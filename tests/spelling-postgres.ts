@@ -20,13 +20,13 @@ const owner='11111111-1111-4111-8111-111111111111';
 const other='22222222-2222-4222-8222-222222222222';
 console.log(`begin;
 insert into auth.users(id) values ('${owner}'),('${other}') on conflict do nothing;
-insert into public.memory_nodes(id,owner_id,memory_type,title,content,occurred_at,lifecycle_status,valid_from,valid_to) values
- ('10000000-0000-4000-8000-000000000001','${owner}','procedure','Receta calabaza','Synthetic','2000-01-01','active',null,null),
- ('10000000-0000-4000-8000-000000000002','${other}','procedure','Receta calabaza','Synthetic','2000-01-01','active',null,null),
- ('10000000-0000-4000-8000-000000000003','${owner}','procedure','Receta calabaza','Synthetic','2000-01-01','archived',null,null),
- ('10000000-0000-4000-8000-000000000004','${owner}','procedure','Receta calabaza','Synthetic','2000-01-01','active',null,'2001-01-01'),
- ('10000000-0000-4000-8000-000000000005','${owner}','procedure','Receta calabaza','Synthetic','2000-01-01','active','2999-01-01',null),
- ('10000000-0000-4000-8000-000000000006','${owner}','fact','Calabaza','Synthetic','2010-01-01','active',null,null);
+insert into public.memory_nodes(id,owner_id,event_key,memory_type,title,content,occurred_at,lifecycle_status,valid_from,valid_to) values
+ ('10000000-0000-4000-8000-000000000001','${owner}','spelling:fixture:1','procedure','Receta calabaza','Synthetic','2000-01-01','active',null,null),
+ ('10000000-0000-4000-8000-000000000002','${other}','spelling:fixture:2','procedure','Receta calabaza','Synthetic','2000-01-01','active',null,null),
+ ('10000000-0000-4000-8000-000000000003','${owner}','spelling:fixture:3','procedure','Receta calabaza','Synthetic','2000-01-01','archived',null,null),
+ ('10000000-0000-4000-8000-000000000004','${owner}','spelling:fixture:4','procedure','Receta calabaza','Synthetic','2000-01-01','active',null,'2001-01-01'),
+ ('10000000-0000-4000-8000-000000000005','${owner}','spelling:fixture:5','procedure','Receta calabaza','Synthetic','2000-01-01','active','2999-01-01',null),
+ ('10000000-0000-4000-8000-000000000006','${owner}','spelling:fixture:6','fact','Calabaza','Synthetic','2010-01-01','active',null,null);
 set local role authenticated;
 select set_config('request.jwt.claim.sub','${owner}',true),set_config('request.jwt.claims','{"sub":"${owner}","role":"authenticated"}',true);
 `);
