@@ -2,6 +2,8 @@
 
 Este roadmap reúne mejoras detectadas al auditar búsquedas semánticas reales contra el contrato Matrix 1.2. Los ejemplos y criterios están sanitizados: no contienen recuerdos, identidades ni identificadores de una instalación privada.
 
+**Estado al cierre de MCP 1.8.0:** la [etapa de cinco mejoras en español](docs/release-1.8.0.md) fue aceptada. Las propuestas de alcance, exclusiones y ranking enumeradas debajo siguen siendo un backlog independiente; no son requisitos pendientes para reabrir ese cierre ni funciones implementadas por la tolerancia ortográfica. E5 y consultas entre idiomas están aplazados. El índice HNSW ya existe; revisar su aprovechamiento requiere mediciones y no forma parte de un cambio aprobado en esta etapa.
+
 ## Línea base confirmada
 
 Antes de ampliar el contrato, la implementación ya conserva estas garantías:
