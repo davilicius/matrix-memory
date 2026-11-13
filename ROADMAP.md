@@ -1,80 +1,11 @@
-# Roadmap de recuperación semántica
+# Estado del roadmap
 
-Este roadmap reúne mejoras detectadas al auditar búsquedas semánticas reales contra el contrato Matrix 1.2. Los ejemplos y criterios están sanitizados: no contienen recuerdos, identidades ni identificadores de una instalación privada.
+La etapa **MCP 1.8.0 está aceptada y cerrada**. Su alcance y pruebas están en [el cierre de versión](docs/release-1.8.0.md).
 
-**Estado al cierre de MCP 1.8.0:** la [etapa de cinco mejoras en español](docs/release-1.8.0.md) fue aceptada. Las propuestas de alcance, exclusiones y ranking enumeradas debajo siguen siendo un backlog independiente; no son requisitos pendientes para reabrir ese cierre ni funciones implementadas por la tolerancia ortográfica. E5 y consultas entre idiomas están aplazados. El índice HNSW ya existe; revisar su aprovechamiento requiere mediciones y no forma parte de un cambio aprobado en esta etapa.
+## Prioridades activas
 
-## Siguiente prioridad acordada — 13 de noviembre de 2026
+No se establece una nueva etapa de implementación con las cuatro propuestas de agosto. La priorización registrada el 13 de noviembre de 2026 queda retirada tras su reevaluación frente al sistema actual.
 
-Retomar las cuatro propuestas de este roadmap como la siguiente etapa de mejora, en este orden:
+Filtros y exclusiones, ajustes de ranking, recuerdos autocontenidos y convenciones de claves se conservan únicamente como [casos de estudio](docs/study-cases-retrieval.md), sin prioridad activa ni ejecución comprometida. No se consideran implementados por este cambio documental. Sólo tendría sentido retomar alguno ante una necesidad concreta y pruebas de que la versión actual no la resuelve suficientemente.
 
-1. **P0 — Alcance y exclusiones estructuradas:** filtrar por ámbito y excluir dominios, entidades o etiquetas.
-2. **P1 — Ranking consciente del dominio:** ordenar según el ámbito solicitado y mejorar las señales del título.
-3. **P1 — Recuerdos personales autocontenidos:** separar experiencias y procedimientos para recuperarlos con su contexto suficiente.
-4. **P2 — Convenciones de claves:** estandarizar nuevas `event_key`, preservando las históricas y la idempotencia.
-
-El primer bloque a abordar es P0. Esta actualización registra la prioridad; los cuatro bloques siguen pendientes de implementación. La etapa MCP 1.8.0 permanece aceptada y cerrada. E5 y consultas entre idiomas continúan aplazados; optimizar el uso de HNSW no desplaza este orden.
-
-## Línea base confirmada
-
-Antes de ampliar el contrato, la implementación ya conserva estas garantías:
-
-- Escritura atómica e idempotente mediante `matrix_remember(jsonb)`.
-- Aislamiento por propietario con autenticación y Row Level Security.
-- Embeddings de 384 dimensiones generados de forma asíncrona.
-- Caché de embeddings de consulta durante 24 horas.
-- Recuperación híbrida de texto completo, similitud vectorial y señales de calidad.
-- Registro de cada recuperación lista en `retrieval_history`.
-- Incremento de contadores únicamente para resultados directos; las asociaciones no cuentan como recuperaciones directas.
-- Expansión limitada de asociaciones para aportar contexto sin recorrer el grafo sin control.
-
-## Hallazgo principal
-
-Las consultas específicas recuperan correctamente memorias atómicas. En cambio, una consulta genérica con exclusiones escritas en lenguaje natural puede mezclar dominios: términos como nombres de proyectos o tecnologías terminan convertidos en señales positivas por la búsqueda de texto completo, aunque la intención de la frase sea excluirlos.
-
-El problema no está en la generación del embedding ni en la atomicidad de escritura. Está en el contrato de recuperación: hoy no expresa de forma estructurada el dominio deseado ni las exclusiones.
-
-## Mejoras previstas
-
-### P0 — Alcance y exclusiones estructuradas
-
-- Añadir filtros explícitos de alcance o dominio, por ejemplo `personal`, `profesional` y `tecnico`.
-- Añadir exclusiones estructuradas por dominio, entidad o etiqueta.
-- Compilar las exclusiones léxicas de forma segura en vez de insertar palabras como términos positivos.
-- Aplicar los filtros dentro del RPC, siempre bajo las políticas RLS del propietario.
-- Definir compatibilidad hacia atrás para clientes que no envíen los campos nuevos.
-
-### P1 — Ranking consciente del dominio
-
-- Reequilibrar importancia, confianza e intensidad emocional cuando el dominio solicitado no coincide con el recuerdo.
-- Evitar que memorias técnicas de alta importancia desplacen resultados personales pertinentes en consultas amplias.
-- Sustituir el bono por coincidencia del texto completo de la consulta en el título por señales útiles: coincidencia de términos normalizados, cobertura del título o frases clave.
-- Mantener explicables los pesos y documentar cualquier cambio del ranking.
-
-### P1 — Atomicidad del contenido personal
-
-- Favorecer memorias independientes para episodios, recetas, preferencias, salud, familia y viajes.
-- Evitar recuerdos paraguas que agrupen múltiples experiencias sin detalle recuperable.
-- Mantener cada procedimiento autocontenido para que pueda recuperarse sin depender de la conversación original.
-
-### P2 — Convenciones y migración
-
-- Usar prospectivamente `scope:type:short-slug[:yyyy-mm-dd]` para `event_key`.
-- No reescribir claves históricas de forma automática.
-- Si se requiere normalización, diseñar una migración controlada que preserve idempotencia, relaciones y procedencia.
-
-## Pruebas de regresión
-
-El contrato ampliado debe cubrir, como mínimo:
-
-1. Una consulta personal genérica excluye resultados técnicos y profesionales cuando el filtro lo solicita.
-2. Una consulta específica de procedimiento devuelve la memoria atómica esperada en primer lugar.
-3. La transición `pending → ready` genera exactamente un registro de recuperación por llamada lista.
-4. Las asociaciones no incrementan el contador de recuperación directa.
-5. Una consulta repetida reutiliza el embedding en caché y registra cada recuperación lista.
-6. Un usuario no puede leer, recuperar ni excluir usando datos de otro propietario.
-7. Los clientes 1.2 sin filtros nuevos mantienen su comportamiento actual.
-
-## Criterio de salida
-
-La mejora estará lista cuando las búsquedas genéricas respeten el alcance solicitado sin depender de negaciones en lenguaje natural, las búsquedas específicas mantengan su precisión y todas las garantías de autenticación, idempotencia, trazabilidad y aislamiento continúen verificadas.
+E5 y consultas entre idiomas continúan aplazados. El índice HNSW existe; evaluar su aprovechamiento tampoco constituye una nueva prioridad activa.

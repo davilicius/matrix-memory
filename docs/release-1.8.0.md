@@ -34,7 +34,7 @@ La comparación antes/después conservó exactamente los IDs y el orden en 7 de 
 - E5 y consultas entre idiomas quedan para otra ampliación; la evaluación experimental de PR 8 no fue desplegada.
 - La recuperación de erratas sólo presentes en el cuerpo de notas largas no está garantizada por esta versión.
 - La mejora de resúmenes, fechas conocidas y relaciones históricas puede abordarse en otra etapa, sin inventar datos.
-- El [roadmap de filtros y exclusiones](../ROADMAP.md) es un backlog separado, no una condición abierta de este cierre.
+- Las cuatro propuestas históricas de filtros, ranking, contenido y claves se retiraron de las prioridades activas y se conservaron como [casos de estudio](study-cases-retrieval.md); no son pendientes de este cierre.
 - Los límites de conjuntos de candidatos y las coincidencias aproximadas no garantizan un inventario exhaustivo ni certifican vigencia.
 
 No se añadió un despliegue automático. La documentación de cierre no exige otro despliegue. La reversión técnica del suplemento consiste en restaurar el paquete completo anterior; no necesita deshacer una migración de base de datos.

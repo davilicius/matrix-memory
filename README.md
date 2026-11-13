@@ -105,15 +105,13 @@ tests/                        contrato y controles básicos
 
 Consulta [security.md](docs/security.md) antes de adaptar el proyecto a información real.
 
-## Roadmap de mejoras
+## Roadmap y casos de estudio
 
-Una auditoría del contrato 1.2 confirmó la atomicidad, la idempotencia, el aislamiento RLS, la cola asíncrona, la caché y la trazabilidad de las recuperaciones. También detectó una limitación: las exclusiones expresadas solamente en lenguaje natural pueden convertirse en términos positivos para la búsqueda de texto completo.
-
-El [roadmap de recuperación semántica](ROADMAP.md) propone filtros estructurados de dominio y exclusión, ranking consciente del alcance, mejores señales de título, atomicidad del contenido personal y una batería de regresión para conservar las garantías actuales.
+La etapa MCP 1.8.0 está cerrada. Las cuatro propuestas históricas de recuperación se retiraron de las prioridades activas y se conservan como [casos de estudio](docs/study-cases-retrieval.md). No hay una nueva etapa de implementación comprometida para esos puntos; consulta el [estado del roadmap](ROADMAP.md).
 
 ## Estado
 
-Contrato **Matrix 1.2** con código de producción sanitizado, MCP OAuth y un perfil educativo separado. Publicar el repositorio no activa la integración ni modifica Supabase. El trabajo posterior a la auditoría está documentado en [ROADMAP.md](ROADMAP.md).
+Contrato **Matrix 1.2** con código de producción sanitizado, MCP OAuth y un perfil educativo separado. Publicar el repositorio no activa la integración ni modifica Supabase. El alcance cerrado y las propuestas sin prioridad activa se distinguen en [ROADMAP.md](ROADMAP.md).
 
 ## Referencias
 
