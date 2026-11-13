@@ -81,6 +81,7 @@ sql < tests/supersession.sql
 bash tests/supersession-concurrency.sh "supabase_db_$project"
 supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error
 
+sql < tests/application-legacy-fixture.sql
 for migration in supabase/migrations/*_application_permissions.sql; do sql < "$migration"; done
 sql < tests/application-permissions.sql
 supabase --workdir "$test_root" db advisors --local --type security --level warn --fail-on error
